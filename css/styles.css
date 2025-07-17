@@ -3206,10 +3206,10 @@ input[type="button"].btn--primary:focus {
  * ------------------------------------------------------------------- */
 .s-header__nav {
     font-family: var(--font-1);
-    font-size: 1.45rem;
-    font-weight: 400;
     margin: 0;
     padding: 0;
+    font-size: 2rem;         /* augmente la taille du texte */
+    font-weight: 600;        /* rend le texte plus gras */
 }
 
 .s-header__nav ul {
@@ -3232,15 +3232,19 @@ input[type="button"].btn--primary:focus {
     height: var(--header-height);
     line-height: var(--header-height);
     padding: 0 1.6rem;
-    color: rgba(255, 255, 255, 0.5);
+    color: white;            /* texte blanc pour la lisibilité */
+    font-size: 2rem;         /* adapte la taille du lien */
+    font-weight: 600;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
 }
 
 .s-header__nav a:hover, .s-header__nav a:focus {
     color: white;
 }
 
-.s-header__nav .current a {
-    color: var(--color-2);
+.s-header__nav a:hover, 
+.s-header__nav a:focus {
+    color: var(--color-2);   /* couleur d’accent au survol */
 }
 
 /* ------------------------------------------------------------------- 
@@ -3441,13 +3445,14 @@ input[type="button"].btn--primary:focus {
 .s-hero__bg {
     display: block;
     position: absolute;
+    z-index: 0;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
     width: 100%;
     height: 100%;
-    background-image: url(../images/header-bg-3000.jpg);
+    background-image: url(../images/vincennes_2023.jpg);
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
@@ -3464,7 +3469,7 @@ input[type="button"].btn--primary:focus {
     width: 100%;
     height: 100%;
     background: black;
-    opacity: .5;
+    opacity: .25;
 }
 
 .s-hero__bg::after {
@@ -3493,8 +3498,24 @@ input[type="button"].btn--primary:focus {
     padding-top: 16vh;
     padding-bottom: 12vh;
     position: relative;
+    
 }
-
+.s-hero__content,
+.s-hero__scroll,
+.s-hero__content-watermark {
+    position: relative;
+    z-index: 2;
+}
+.s-hero__content-watermark {
+    position: absolute;
+    right: 2rem;
+    bottom: 2rem;
+    color: rgba(255,255,255,0.7);
+    font-size: 1.0rem;
+    z-index: 10;
+    pointer-events: none;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
 .s-hero__content h1 {
     font-size: 9.8rem;
     font-weight: 600;
@@ -3503,6 +3524,7 @@ input[type="button"].btn--primary:focus {
     color: white;
     margin-top: 0;
     margin-bottom: 0;
+     text-shadow: 0 2px 8px rgba(0,0,0,0.8);
 }
 
 .s-hero__content h3 {
@@ -3517,6 +3539,7 @@ input[type="button"].btn--primary:focus {
     padding-bottom: var(--vspace-1);
     max-width: 800px;
     position: relative;
+     text-shadow: 0 2px 8px rgba(0,0,0,0.8);
 }
 
 .s-hero__content h3 span, .s-hero__content h3 a {
@@ -3541,13 +3564,13 @@ input[type="button"].btn--primary:focus {
  * ## hero social
  * ------------------------------------------------------------------- */
 .s-hero__content-social {
-    display: -ms-inline-flexbox;
-    display: -webkit-inline-box;
-    display: inline-flex;
-    -ms-flex-flow: row wrap;
-    -webkit-box-orient: horizontal;
-    -webkit-box-direction: normal;
-    flex-flow: row wrap;
+    /* display: -ms-inline-flexbox; */
+    /* display: -webkit-inline-box; */
+    display: block;
+    /* -ms-flex-flow: row wrap; */
+    /* -webkit-box-orient: horizontal; */
+    /* -webkit-box-direction: normal; */
+    /* flex-flow: row wrap; */
     font-size: 2.6rem;
     line-height: 1;
     margin-top: var(--vspace-0_5);
@@ -3565,6 +3588,25 @@ input[type="button"].btn--primary:focus {
 
 .s-hero__content-social a:last-child {
     margin-right: 0;
+}
+
+.s-hero__content-social ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: row;      /* <-- horizontal */
+    align-items: center;
+    justify-content: center;  /* centre horizontalement */
+    gap: 2rem;                /* espace entre les icônes */
+}
+
+.s-hero__content-social li {
+    margin: 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
+    display: flex !important;
+    justify-content: center;
 }
 
 /* ------------------------------------------------------------------- 
@@ -3780,6 +3822,9 @@ input[type="button"].btn--primary:focus {
     padding-top: calc(6 * var(--space));
     padding-bottom: var(--vspace-4);
     color: rgba(255, 255, 255, 0.4);
+    margin-top: 0;
+    position: relative;
+    z-index: 1;
 }
 
 .s-about h3 {
