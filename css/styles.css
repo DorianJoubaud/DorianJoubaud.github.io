@@ -4755,3 +4755,8 @@ input[type="button"].btn--primary:focus {
         margin-right: 1.4rem;
     }
 }
+s-about__content,
+.s-about__content h3,
+.s-about__content p {
+    color: white;
+}
