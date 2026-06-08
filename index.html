@@ -1,553 +1,363 @@
 <!DOCTYPE html>
-<html class="no-js" lang="en">
+<html lang="en">
 <head>
-
-    <!--- basic page needs
-    ================================================== -->
     <meta charset="utf-8">
-    <title>Ceevee 2.0</title>
-    <meta name="description" content="">
-    <meta name="author" content="">
-
-    <!-- mobile specific metas
-    ================================================== -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dorian Joubaud</title>
+    <meta name="description" content="Dorian Joubaud, PhD candidate in Machine Learning at the University of Luxembourg, SnT. Time-series data augmentation and synthetic data generation.">
+    <meta name="author" content="Dorian Joubaud">
 
-    <!-- CSS
-    ================================================== -->
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/vendor.css">
-
-    <!-- script
-    ================================================== -->
-
-
-    <!-- favicons
-    ================================================== -->
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-    <link rel="manifest" href="site.webmanifest">
-    <head>
-  <!-- Other head elements -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/main.css">
 </head>
+<body>
 
-
-</head>
-
-<body id="top" class="ss-preload">
-
-
-    <!-- preloader
-    ================================================== -->
-    <div id="preloader">
-        <div id="loader"></div>
+<!-- ============ Top nav ============ -->
+<nav class="topnav">
+    <div class="topnav__inner">
+        <a class="topnav__brand" href="#top">Dorian Joubaud</a>
+        <ul class="topnav__links">
+            <li><a href="#about">About</a></li>
+            <li><a href="#news">News</a></li>
+            <li><a href="#publications">Publications</a></li>
+            <li><a href="#open-source">Open source</a></li>
+            <li><a href="#talks">Talks</a></li>
+            <li><a href="#teaching">Teaching</a></li>
+        </ul>
     </div>
+</nav>
 
-<div class="s-hero__bg rellax" data-rellax-speed="-7"></div>
-    <!-- header
-    ================================================== -->
-    <header class="s-header">
-        <div class="row s-header__nav-wrap">
-            <nav class="s-header__nav">
-                <ul>
-                    <li class="current"><a class="smoothscroll" href="#hero">Home</a></li>
-                    <li><a class="smoothscroll" href="#about">About me</a></li>
-                    <li><a class="smoothscroll" href="#resume">Resume</a></li>
-                    <li><a class="smoothscroll" href="#portfolio">Works</a></li>
-                    <li><a class="smoothscroll" href="#testimonials">Testimonials</a></li>
-                    <li><a class="smoothscroll" href="#contact">Say Hello</a></li>
-                </ul>
-            </nav>
-        </div> <!-- end row -->
-        
-        <a class="s-header__menu-toggle" href="#0" title="Menu">
-            <span class="s-header__menu-icon"></span>
-        </a>
-    </header> <!-- end s-header -->
+<main id="top">
 
-
-    <!-- hero
-    ================================================== -->
-    <section id="hero" class="s-hero target-section">
-
-        <div class="s-hero__bg rellax" data-rellax-speed="-7"></div>
-
-        <div class="row s-hero__content">
-            <div class="column">
-
-                <div class="s-hero__content-about">
-
-                    <h1>Dorian Joubaud</h1>
-
-                    <h3>
-                    <span>Data Scientist Engineer</span>
-                        </br> <span>PhD student in Machine Learning at University of Luxembourg</span>
-
-                    </h3>
-
-                    <div class="s-hero__content-social">
-                        <ul>
-                            <li><a href="https://github.com/dorianjoubaud"><i class="fa fa-github" aria-hidden="true"></i></a></li>
-                            <li><a href="https://www.linkedin.com/in/djoubaud"><i class="fa fa-linkedin"></i></a></li>
-                            <li><a href="mailto:djoubaud@gmail.com"><i class="fa fa-envelope"></i></a></li>
-                        </ul>
-                    </div>
-
-                </div> <!-- end s-hero__content-about -->
-
-            </div>
-        </div> <!-- s-hero__content -->
-
-        <div class="s-hero__scroll">
-            <a href="#about" class="s-hero__scroll-link smoothscroll">
-                <span class="scroll-arrow">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill:rgba(0, 0, 0, 1);transform:;-ms-filter:"><path d="M18.707 12.707L17.293 11.293 13 15.586 13 6 11 6 11 15.586 6.707 11.293 5.293 12.707 12 19.414z"></path></svg>
-                </span>
-                <span class="scroll-text">Scroll Down</span>
-            </a>
-        </div> <!-- s-hero__scroll -->
-
-        <div class="s-hero__content-watermark">
-            <small>Background: Lovely Spring by Dorian Joubaud</small>
-        </div>
-
-    </section> <!-- end s-hero -->
-
-
-    <!-- about
-    ================================================== -->
-    <section id="about" class="s-about target-section">
-
-        <div class="row">
-            <div class="column large-3 tab-12">
-                <img class="s-about__pic" src="images/dj2.png" alt="">
-            </div>
-            <div class="column large-9 tab-12 s-about__content">
-                <h3>About Me</h3>
-                <p>
-                I’m Dorian Joubaud, a Data Scientist Engineer and PhD student in Machine Learning at the University of Luxembourg’s SnT. I’m passionate by AI applications. My current work challenges data augmentation for time-series analysis particulary in Industry 4.0. I am always intested in discovering and discussing new ideas, so feel free to reach out to me.
+<!-- ============ Hero / About ============ -->
+<section id="about" class="hero">
+    <div class="container">
+        <div class="hero__row">
+            <img class="hero__photo" src="images/dj2.png" alt="Dorian Joubaud">
+            <div class="hero__text">
+                <h1 class="hero__name">Dorian Joubaud</h1>
+                <p class="hero__role">PhD candidate, Machine Learning</p>
+                <p class="hero__affil">
+                    <a href="https://www.uni.lu/snt-en/research-groups/serval/" target="_blank" rel="noopener">SerVal group</a>,
+                    <a href="https://www.uni.lu/snt-en/" target="_blank" rel="noopener">SnT</a>,
+                    University of Luxembourg
                 </p>
-
-                <hr>
-
-                <div class="row s-about__content-bottom">
-                    <div class="column w-1000-stack">
-                        <h3>Contact</h3>
-    
-                        <p>
-                        Dorian Joubaud<br>
-                        <a href="mailto:#0">dorian.joubaud@uni.lu</a>
-                        </p>
-                        
-                    </div>
-                    <!-- <div class="column w-1000-stack">
-                        <a href="#0" class="btn btn--download">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style="fill:rgba(0, 0, 0, 1);transform:;-ms-filter:"><path d="M12 16L16 11 13 11 13 4 11 4 11 11 8 11z"></path><path d="M20,18H4v-7H2v7c0,1.103,0.897,2,2,2h16c1.103,0,2-0.897,2-2v-7h-2V18z"></path></svg>
-                            Download CV
-                        </a>
-                    </div> -->
-                </div>
-            </div>
-        </div> <!-- end row -->
-
-    </section> <!-- end s-about -->
-
-
-    <!-- resume
-    ================================================== -->
-    <section id="resume" class="s-resume target-section">
-        
-        <div class="row s-resume__section">
-            <div class="column large-3 tab-12">
-                <h3 class="section-header-allcaps">Publications</h3>
-            </div>
-            <div class="column large-9 tab-12">
-                <div class="resume-block">
-
-                    <div class="resume-block__header">
-                        <h4  class="h3">
-                            <a href='http://papers.phmsociety.org/index.php/phmconf/article/view/3898' target="_blank" rel="noopener">
-                            CycleGAN-based Data Augmentation for Enhanced Remaining Useful Life Prediction Under Unsupervised Domain Adaptation
-                        </a>
-                        </h4>
-                        <p class="resume-block__header-meta">
-                            <span>Annual Conference of the PHM Society</span> 
-                            <span class="resume-block__header-date">
-                                2024
-                            </span>
-                        </p>
-                    </div>
-
-                    <p>
-                    CycleGAN-based data augmentation pipeline for Remaining Useful Life (RUL) prediction under unsupervised domain adaptation, improving generalization across domains using adversarial learning and correlation alignment.
-                    </p>
-
-                </div> <!-- end resume-block -->
-
-                <div class="resume-block">
-
-                    <div class="resume-block__header">
-                        <h4  class="h3">
-                            <a href='https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=10795179' target="_blank" rel="noopener">
-                            Decision support model for time series data augmentation method selection
-                        </a>
-                        </h4>
-                        <p class="resume-block__header-meta">
-                            <span>IEEE Access Journal</span> 
-                            <span class="resume-block__header-date">
-                                2024
-                            </span>
-                        </p>
-                    </div>
-
-                    <p>
-                   BALANCER is a machine learning framework that recommends the best data augmentation techniques for imbalanced time series classification tasks, validated over 720 datasets and explained with XAI tools.
-                    </p>
-
-                </div> <!-- end resume-block -->
-
-
-           
-            </div>
-        </div> <!-- s-resume__section -->
-
-
-        <div class="row s-resume__section">
-            <div class="column large-3 tab-12">
-                <h3 class="section-header-allcaps">Education</h3>
-            </div>
-            <div class="column large-9 tab-12">
-                <div class="resume-block">
-
-                    <div class="resume-block__header">
-                        <h4 class="h3">University of Luxembourg</h4>
-                        <p class="resume-block__header-meta">
-                            <span>PhD Student</span> 
-                            <span class="resume-block__header-date">
-                                November 2022 - Present
-                            </span>
-                        </p>
-                    </div>
-
-                    <p>
-                    PhD student in Machine Learning at the University of Luxembourg’s SnT, focusing on data augmentation for time-series analysis in Industry 4.0.
-                    </p>
-
-                </div> <!-- end resume-block -->
-
-                <div class="resume-block">
-
-                    <div class="resume-block__header">
-                        <h4 class="h3">Institut Polytechnique de Paris </h4>
-                        <p class="resume-block__header-meta">
-                            <span>Master TRIED</span> 
-                            <span class="resume-block__header-date">
-                                2021 - 2022
-                            </span>
-                        </p>
-                    </div>
-
-                    <p>
-                    Master's degree from Institut Polytechnique de Paris at the University Paris-Saclay, in partnership with Telecom SudParis, ENSIIE, and the University of Versailles, in agreement with CNAM.
-Information Processing and Data Exploitation, leading to the profession of Data Scientist as well as the field of Big Data, and which can lead to research.
-                    </p>
-
-                </div> <!-- end resume-block -->
-
-                <div class="resume-block">
-
-                    <div class="resume-block__header">
-                        <h4 class="h3">ENSIIE</h4>
-                        <p class="resume-block__header-meta">
-                            <span>Engineering student</span> 
-                            <span class="resume-block__header-date">
-                                2019 - 2022
-                            </span>
-                        </p>
-                    </div>
-
-                    <p>
-                    Engineering student at ENSIIE, specializing in Data Science and Artificial Intelligence, with a focus on machine learning and data analysis.
-                    </p>
-
-                </div> <!-- end resume-block -->
-            </div>
-        </div> <!-- s-resume__section -->
-
-
-    </section> <!-- end s-resume -->
-
-
-    <!-- portfolio
-    ================================================== -->
-    <section id="portfolio" class="s-portfolio target-section">
-
-        <div class="row s-portfolio__header">
-            <div class="column large-12">
-                <h3>A Few Of My Latest project</h3>
-            </div>
-        </div>
-
-        <div class="row collapse block-large-1-4 block-medium-1-3 block-tab-1-2 block-500-stack folio-list">
-
-            <div class="column folio-item">
-                <a href="#modal-01" class="folio-item__thumb">
-                    <img src="images/wdwg.png"
-                         srcset="images/wdwg.png 1x, 
-                                 images/wdwg.png 2x" alt="">
-                </a>
-            </div> <!-- end folio-item -->
-
-            <
-
-        </div> <!-- end folio-list -->
-
-
-        <!-- Modal Templates Popup
-        =========================================================== -->
-        <div id="modal-01" hidden>
-            <div class="modal-popup">
-                <img src="images/wdwg.png" alt="" />
-    
-                <div class="modal-popup__desc">
-                    <h5>Droplet</h5>
-                    <p>Odio soluta enim quos sit asperiores rerum rerum repudiandae cum. Vel voluptatem alias qui assumenda iure et expedita voluptatem. Ratione officiis quae.</p>
-                    <ul class="modal-popup__cat">
-                        <li>Branding</li>
-                        <li>Product Design</li>
-                    </ul>
-                </div>
-    
-                <a href="https://www.behance.net/" class="modal-popup__details">Project link</a>
-            </div>
-        </div> <!-- end modal -->
-
-        <div id="modal-02" hidden>
-            <div class="modal-popup">
-                <img src="images/portfolio/gallery/g-lamp.jpg" alt="" />
-    
-                <div class="modal-popup__desc">
-                    <h5>The Lamp</h5>
-                    <p>Proin gravida nibh vel velit auctor aliquet. Aenean sollicitudin, lorem quis bibendum auctor, nisi elit consequat ipsum, nec sagittis sem nibh id elit.</p>
-                    <ul class="modal-popup__cat">
-                        <li>Branding</li>
-                    </ul>
-                </div>
-    
-                <a href="https://www.behance.net/" class="modal-popup__details">Project link</a>
-            </div>
-        </div> <!-- end modal -->
-
-        <div id="modal-03" hidden>
-            <div class="modal-popup">
-                <img src="images/portfolio/gallery/g-minimalismo.jpg" alt="" />
-    
-                <div class="modal-popup__desc">
-                    <h5>Minimalismo</h5>
-                    <p>Exercitationem reprehenderit quod explicabo consequatur aliquid ut magni ut. Deleniti quo corrupti illum velit eveniet ratione necessitatibus ipsam mollitia.</p>
-                    <ul class="modal-popup__cat">
-                        <li>Product Design</li>
-                    </ul>
-                </div>
-    
-                <a href="https://www.behance.net/" class="modal-popup__details">Project link</a>
-            </div>
-        </div> <!-- end modal -->
-
-        <div id="modal-04" hidden>
-            <div class="modal-popup">
-                <img src="images/portfolio/gallery/g-shutterbug.jpg" alt="" />
-    
-                <div class="modal-popup__desc">
-                    <h5>Shutterbug</h5>
-                    <p>Dolores velit qui quos nobis. Aliquam delectus voluptas quos possimus non voluptatem voluptas voluptas. Est doloribus eligendi porro doloribus voluptatum.</p>
-                    <ul class="modal-popup__cat">
-                        <li>E-Commerce</li>
-                    </ul>
-                </div>
-    
-                <a href="https://www.behance.net/" class="modal-popup__details">Project link</a>
-            </div>
-        </div> <!-- end modal -->
-
-        <div id="modal-05" hidden>
-            <div class="modal-popup">
-
-                <img src="images/portfolio/gallery/g-fuji.jpg" alt="" />
-    
-                <div class="modal-popup__desc">
-                    <h5>Fuji</h5>
-                    <p>Proin gravida nibh vel velit auctor aliquet. Aenean sollicitudin, lorem quis bibendum auctor, nisi elit consequat ipsum, nec sagittis sem nibh id elit.</p>
-                    <ul class="modal-popup__cat">
-                        <li>Product Design</li>
-                    </ul>
-                </div>
-    
-                <a href="https://www.behance.net/" class="modal-popup__details">Project link</a>
-            </div>
-        </div> <!-- end modal -->
-
-        <div id="modal-06" hidden>
-            <div class="modal-popup">
-                <img src="images/portfolio/gallery/g-skaterboy.jpg" alt="" />
-    
-                <div class="modal-popup__desc">
-                    <h5>Skaterboy</h5>
-                    <p>Quisquam vel libero consequuntur autem voluptas. Qui aut vero. Omnis fugit mollitia cupiditate voluptas. Aenean sollicitudin, lorem quis bibendum auctor.</p>
-                    <ul class="modal-popup__cat">
-                        <li>Branding</li>
-                        <li>Product Design</li>
-                    </ul>
-                </div>
-    
-                <a href="https://www.behance.net/" class="modal-popup__details">Project link</a>
-            </div>
-        </div> <!-- end modal -->
-
-        <div id="modal-07" hidden>
-            <div class="modal-popup">
-                <img src="images/portfolio/gallery/g-rucksack.jpg" alt="" />
-    
-                <div class="modal-popup__desc">
-                    <h5>Rucksack</h5>
-                    <p>Odio soluta enim quos sit asperiores rerum rerum repudiandae cum. Vel voluptatem alias qui assumenda iure et expedita voluptatem. Ratione officiis quae.</p>
-                    <ul class="modal-popup__cat">
-                        <li>Branding</li>
-                        <li>Product Design</li>
-                    </ul>
-                </div>
-    
-                <a href="https://www.behance.net/" class="modal-popup__details">Project link</a>
-            </div>
-        </div> <!-- end modal -->
-
-        <div id="modal-08" hidden>
-            <div class="modal-popup">
-                <img src="images/portfolio/gallery/g-sanddunes.jpg" alt="" />
-    
-                <div class="modal-popup__desc">
-                    <h5>Sand Dunes</h5>
-                    <p>Proin gravida nibh vel velit auctor aliquet. Aenean sollicitudin, lorem quis bibendum auctor, nisi elit consequat ipsum, nec sagittis sem nibh id elit.</p>
-                    <ul class="modal-popup__cat">
-                        <li>Web Design</li>
-                    </ul>
-                </div>
-    
-                <a href="https://www.behance.net/" class="modal-popup__details">Project link</a>
-            </div>
-        </div> <!-- end modal -->
-
-
-    </section> <!-- end s-portfolio -->
-
-
-    <!-- CTA
-    ================================================== -->
-
-
-
-    <!-- testimonials
-    ================================================== -->
-    
-
-
-    <!-- contact
-    ================================================== -->
-    <section id="contact" class="s-contact target-section">
-
-        <div class="row s-contact__header">
-            <div class="column large-12">
-                <h3 class="section-header-allcaps">Say Hello</h3>
-            </div>
-        </div>
-
-        <div class="row s-contact__content">
-
-            <div class="column large-7 medium-12">
-
-                <h4 class="huge-text">
-                Have a new project in mind? Let's collaborate and build something awesome. 
-                Let's turn that idea to an even greater product :)
-                </h4>
-
-            </div>
-
-            <div class="column large-4 medium-12">
-
-                <div class="row contact-infos">
-                    <div class="column large-12 medium-6 tab-12">
-                        <div class="contact-block">
-                            <h5 class="contact-block__header">
-                                Email
-                            </h5>
-                            <p class="contact-block__content">
-                                <a class="mailtoui" href="mailto:sayhello@ceevee.com">sayhello@ceevee.com</a>
-                            </p>
-                        </div> <!-- end contact-block -->
-                    </div>
-                    <div class="column large-12 medium-6 tab-12">
-                        <div class="contact-block">
-                            <h5 class="contact-block__header">
-                                Phone
-                            </h5>
-                            <p class="contact-block__content">
-                                <a href="tel:+1975432345">+197 543 2345</a>
-                            </p>
-                        </div> <!-- end contact-block -->
-                    </div>
-
-                    <div class="column large-12">
-                        <a href="mailto:sayhello@ceevee.com" class="mailtoui btn btn--primary h-full-width">Let's Talk</a>
-                    </div>
-                </div> <!-- end contact-infos -->
-
-            </div>
-        </div> <!-- s-contact__content -->
-
-    </section> <!-- end s-contact -->
-    
-
-    <!-- footer
-    ================================================== -->
-    <footer class="s-footer">
-        <div class="row">
-            <div class="column large-4 medium-6 w-1000-stack s-footer__social-block">
-                <ul class="s-footer__social">
-                    <li><a href="#0"><i class="fab fa-facebook-f" aria-hidden="true"></i></a></li>
-                    <li><a href="#0"><i class="fab fa-twitter" aria-hidden="true"></i></a></li>
-                    <li><a href="#0"><i class="fab fa-instagram" aria-hidden="true"></i></a></li>
-                    <li><a href="#0"><i class="fab fa-dribbble" aria-hidden="true"></i></a></li>
-                    <li><a href="#0"><i class="fab fa-linkedin-in" aria-hidden="true"></i></a></li>
+                <p class="hero__location">Luxembourg</p>
+
+                <ul class="socials" aria-label="Social links">
+                    <li><a href="mailto:dorian.joubaud@uni.lu" aria-label="Email"><i class="fa-solid fa-envelope"></i></a></li>
+                    <li><a href="https://github.com/DorianJoubaud" target="_blank" rel="noopener" aria-label="GitHub"><i class="fa-brands fa-github"></i></a></li>
+                    <li><a href="https://www.linkedin.com/in/djoubaud" target="_blank" rel="noopener" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a></li>
+                    <li><a href="https://scholar.google.com/citations?user=ZqPft5MAAAAJ" target="_blank" rel="noopener" aria-label="Google Scholar"><i class="fa-solid fa-graduation-cap"></i></a></li>
                 </ul>
             </div>
-
-            <div class="column large-7 medium-6 w-1000-stack ss-copyright">
-                <span>© Copyright Ceevee 2021</span> 
-                <span>Design by <a href="https://www.styleshout.com/">StyleShout</a></span>
-            </div>
         </div>
 
-        <div class="ss-go-top">
-            <a class="smoothscroll" title="Back to Top" href="#top">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 4h12v2H6zm5 10v6h2v-6h5l-6-6-6 6z"/></svg>
-             </a>
-        </div> <!-- end ss-go-top -->
-    </footer>
+        <div class="prose" style="margin-top: 2rem;">
+            <p>
+                I'm a PhD candidate in Machine Learning at the
+                <a href="https://www.uni.lu/snt-en/" target="_blank" rel="noopener">SnT</a> of the University of Luxembourg,
+                supervised by <a href="https://wwwen.uni.lu/research/fstm/dcs/members/yves_le_traon" target="_blank" rel="noopener">Prof. Yves Le Traon</a>
+                and <a href="https://www.uni.lu/snt-en/people/sylvain-kubler/" target="_blank" rel="noopener">Dr. Sylvain Kubler</a>.
+                My research focuses on <strong>synthetic data generation for time series</strong>: producing,
+                selecting, and evaluating augmented samples that help downstream models when real data is
+                scarce, imbalanced, or drawn from a different distribution.
+            </p>
+            <p>
+                In <strong>BALANCER</strong> (IEEE Access 2024), we trained a model to pick the right augmentation
+                method for each imbalanced dataset. <strong>DADA</strong> (PHM 2024) uses a Wasserstein CycleGAN
+                to translate labeled source-domain samples into synthetic target-domain samples, allowing a
+                remaining-useful-life predictor to be trained for a target domain that has no labels of its own.
+                <strong>ASCENSION</strong> (under review at TMLR) expands class regions inside a VAE latent space
+                so a classifier stays confident with little training data. Reach out if any of this is relevant
+                to your work.
+            </p>
+        </div>
+    </div>
+</section>
 
+<!-- ============ News ============ -->
+<section id="news" class="section">
+    <div class="container">
+        <h2 class="section__title">News</h2>
 
-    <!-- Java Script
-    ================================================== -->
-    <script src="js/plugins.js"></script>
-    <script src="js/main.js"></script>
+        <ul class="news">
+            <li>
+                <span class="news__date">May 2026</span>
+                <span class="news__text"><strong>ASCENSION</strong> resubmitted to TMLR; Action Editor assigned.</span>
+            </li>
+            <li>
+                <span class="news__date">Dec 2024</span>
+                <span class="news__text"><strong>BALANCER</strong> published in <em>IEEE Access</em>.</span>
+            </li>
+            <li>
+                <span class="news__date">Nov 2024</span>
+                <span class="news__text"><strong>DADA</strong> presented at the Annual Conference of the PHM Society 2024.</span>
+            </li>
+            <li>
+                <span class="news__date">Nov 2022</span>
+                <span class="news__text">Started my PhD at the University of Luxembourg, SnT.</span>
+            </li>
+        </ul>
 
-  <!-- Your HTML content -->
+        <!-- TODO: add more news as it happens. Keep it recent-first. -->
+    </div>
+</section>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/js/font-awesome.min.js"></script>
+<!-- ============ Publications ============ -->
+<section id="publications" class="section">
+    <div class="container">
+        <h2 class="section__title">Publications</h2>
 
+        <!-- ASCENSION (under review) -->
+        <article class="pub">
+            <h3 class="pub__title">
+                <a href="https://github.com/DorianJoubaud/ASCENSION" target="_blank" rel="noopener">
+                    ASCENSION: VAE-based Latent Space Class Expansion for Time-Series Data Augmentation
+                </a>
+                <span class="tag tag--review">Under review</span>
+            </h3>
+            <p class="pub__meta">
+                <span class="pub__venue">Transactions on Machine Learning Research (TMLR)</span>
+                <span class="pub__year">2026</span>
+            </p>
+            <p class="pub__authors">
+                <span class="me">D. Joubaud</span>, M. Olekhnovitch, A. Bolling, E. Zotov, S. Kubler, M. Cordy, et al.
+            </p>
+            <p class="pub__desc">
+                Augmentation in the VAE latent space via class-conditional contrastive expansion with an
+                α-scaling control. Evaluated across the 102 UCR datasets; the framework consistently
+                improves downstream classification accuracy over standard augmentation baselines.
+            </p>
+            <div class="pub__links">
+                <a class="chip" href="https://github.com/DorianJoubaud/ASCENSION" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> Code</a>
+                <!-- TODO: link the arXiv / OpenReview entry once accepted/posted. -->
+            </div>
+        </article>
 
+        <!-- MAINTAG -->
+        <article class="pub">
+            <h3 class="pub__title">
+                <a href="https://orbilu.uni.lu/handle/10993/66172" target="_blank" rel="noopener">
+                    MAINTAG: Multi-Agent-based Predictive Maintenance Dataset Tagging System
+                </a>
+            </h3>
+            <p class="pub__meta">
+                <span class="pub__venue">Annual Conference of the PHM Society</span>
+                <span class="pub__year">2025</span>
+            </p>
+            <p class="pub__authors">
+                O. Bektaş, <span class="me">D. Joubaud</span>, C. Kulkarni, S. Kubler
+            </p>
+            <p class="pub__desc">
+                A multi-agent system that automates the classification and tagging of predictive-maintenance
+                datasets, lowering the curation effort for downstream learning pipelines.
+            </p>
+            <div class="pub__links">
+                <a class="chip" href="https://orbilu.uni.lu/handle/10993/66172" target="_blank" rel="noopener"><i class="fa-solid fa-file-lines"></i> Paper</a>
+            </div>
+        </article>
+
+        <!-- DADA -->
+        <article class="pub">
+            <h3 class="pub__title">
+                <a href="http://papers.phmsociety.org/index.php/phmconf/article/view/3898" target="_blank" rel="noopener">
+                    CycleGAN-based Data Augmentation for Enhanced Remaining Useful Life Prediction Under Unsupervised Domain Adaptation
+                </a>
+            </h3>
+            <p class="pub__meta">
+                <span class="pub__venue">Annual Conference of the PHM Society</span>
+                <span class="pub__year">2024</span>
+            </p>
+            <p class="pub__authors">
+                <span class="me">D. Joubaud</span>, E. Zotov, O. Bektaş, S. Kubler, Y. Le Traon
+            </p>
+            <p class="pub__desc">
+                A Wasserstein CycleGAN with gradient penalty (W-CycleGAN-GP) generates synthetic samples in
+                an unlabeled target domain from labeled source-domain samples. Combined with adversarial and
+                correlation-alignment domain-adaptation losses, the augmented data improves remaining-useful-life
+                prediction on NASA's C-MAPSS turbofan benchmark.
+            </p>
+            <div class="pub__links">
+                <a class="chip" href="http://papers.phmsociety.org/index.php/phmconf/article/view/3898" target="_blank" rel="noopener"><i class="fa-solid fa-file-lines"></i> Paper</a>
+            </div>
+        </article>
+
+        <!-- BALANCER -->
+        <article class="pub">
+            <h3 class="pub__title">
+                <a href="https://ieeexplore.ieee.org/document/10795179" target="_blank" rel="noopener">
+                    Decision Support Model for Time Series Data Augmentation Method Selection
+                </a>
+            </h3>
+            <p class="pub__meta">
+                <span class="pub__venue">IEEE Access</span>
+                <span class="pub__year">2024</span>
+            </p>
+            <p class="pub__authors">
+                <span class="me">D. Joubaud</span>, S. Kubler, R. Lourenção, M. Cordy, Y. Le Traon
+            </p>
+            <p class="pub__desc">
+                <strong>BALANCER</strong> is a machine-learning framework that recommends the most effective
+                augmentation technique for an imbalanced time-series classification task. Validated on an
+                empirical study of 720 datasets and explained with SHAP-based interpretability.
+            </p>
+            <div class="pub__links">
+                <a class="chip" href="https://ieeexplore.ieee.org/document/10795179" target="_blank" rel="noopener"><i class="fa-solid fa-file-lines"></i> Paper</a>
+            </div>
+        </article>
+
+    </div>
+</section>
+
+<!-- ============ Open source ============ -->
+<section id="open-source" class="section">
+    <div class="container">
+        <h2 class="section__title">Open source</h2>
+
+        <div class="software-grid">
+            <div class="repo">
+                <a href="https://github.com/DorianJoubaud/ASCENSION" target="_blank" rel="noopener">
+                    <p class="repo__name"><i class="fa-brands fa-github"></i> ASCENSION</p>
+                    <p class="repo__desc">VAE-based latent-space class expansion for time-series data augmentation, with α-scaling and contrastive loss. Python + PyTorch.</p>
+                </a>
+            </div>
+
+            <!-- TODO: add other public repos here. A couple of suggestions: -->
+            <!--
+            <div class="repo">
+                <a href="https://github.com/DorianJoubaud/BALANCER" target="_blank" rel="noopener">
+                    <p class="repo__name"><i class="fa-brands fa-github"></i> BALANCER</p>
+                    <p class="repo__desc">Decision-support model recommending the best data-augmentation technique for an imbalanced TSC dataset (IEEE Access 2024).</p>
+                </a>
+            </div>
+            -->
+
+            <div class="repo">
+                <a href="https://github.com/DorianJoubaud" target="_blank" rel="noopener">
+                    <p class="repo__name"><i class="fa-brands fa-github"></i> All repos &rarr;</p>
+                    <p class="repo__desc">Full list of public code on GitHub.</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ Talks & Events ============ -->
+<section id="talks" class="section">
+    <div class="container">
+        <h2 class="section__title">Talks &amp; Events</h2>
+
+        <!-- TODO: fill in actual talks. Below are placeholders to show layout. -->
+        <div class="entry">
+            <span class="entry__when">Nov 2024</span>
+            <span class="entry__main">
+                <span class="entry__title">DADA: CycleGAN-based Data Augmentation for RUL under UDA</span>
+                <span class="entry__sub">Annual Conference of the PHM Society 2024, conference paper presentation.</span>
+            </span>
+        </div>
+
+        <!--
+        <div class="entry">
+            <span class="entry__when">YYYY</span>
+            <span class="entry__main">
+                <span class="entry__title">Title of the talk</span>
+                <span class="entry__sub">Venue · type of event · co-speakers</span>
+            </span>
+        </div>
+        -->
+    </div>
+</section>
+
+<!-- ============ Teaching / Supervisions ============ -->
+<section id="teaching" class="section">
+    <div class="container">
+        <h2 class="section__title">Teaching &amp; Supervisions</h2>
+
+        <div class="entry">
+            <span class="entry__when">2023</span>
+            <span class="entry__main">
+                <span class="entry__title">Introduction to Machine Learning, Space Master</span>
+                <span class="entry__sub">University of Luxembourg. Practical sessions covering synthetic image generation (Hubble galaxies and nebulae) and pulsar classification under class imbalance.</span>
+            </span>
+        </div>
+
+        <div class="entry">
+            <span class="entry__when">2024</span>
+            <span class="entry__main">
+                <span class="entry__title">Internship supervision: <a href="https://matthieu-olekhnovitch.fr/" target="_blank" rel="noopener">Matthieu Olekhnovitch</a></span>
+                <span class="entry__sub">Latent-space class expansion for time-series data augmentation. Co-author on ASCENSION. Awarded the <strong>Louis-Édouard Rivot Medal</strong> by the Académie des sciences (Institut de France) for Best Computer Science Research Internship at École Polytechnique.</span>
+            </span>
+        </div>
+
+        <div class="entry">
+            <span class="entry__when">2023</span>
+            <span class="entry__main">
+                <span class="entry__title">Internship supervision: <a href="https://www.quentinlao.com/" target="_blank" rel="noopener">Quentin Lao</a></span>
+                <span class="entry__sub">Data augmentation techniques for time-series classification (École Polytechnique).</span>
+            </span>
+        </div>
+
+        <p class="prose" style="color: var(--color-faint); font-size: 0.9rem; margin-top: 0.75rem;">
+            <em>If you're a student interested in time series, augmentation, or synthetic data generation, feel free to reach out.</em>
+        </p>
+    </div>
+</section>
+
+<!-- ============ Education ============ -->
+<section id="education" class="section">
+    <div class="container">
+        <h2 class="section__title">Education</h2>
+
+        <div class="entry">
+            <span class="entry__when">2022 –</span>
+            <span class="entry__main">
+                <span class="entry__title">PhD in Machine Learning, University of Luxembourg (SnT)</span>
+                <span class="entry__sub">Data augmentation for time series. Supervised by Prof. Yves Le Traon and Dr. Sylvain Kubler (SerVal group).</span>
+            </span>
+        </div>
+
+        <div class="entry">
+            <span class="entry__when">2021 – 22</span>
+            <span class="entry__main">
+                <span class="entry__title">M.Sc. TRIED, Institut Polytechnique de Paris</span>
+                <span class="entry__sub">Data science and big-data track at Paris-Saclay (Telecom SudParis · ENSIIE · UVSQ · CNAM).</span>
+            </span>
+        </div>
+
+        <div class="entry">
+            <span class="entry__when">2019 – 22</span>
+            <span class="entry__main">
+                <span class="entry__title">Engineering Diploma, ENSIIE</span>
+                <span class="entry__sub">Specialisation in data science and applied machine learning.</span>
+            </span>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+    <div class="container">
+        <p>
+            © <span id="year">2026</span> Dorian Joubaud.
+            Built simply with HTML + CSS.
+            <a href="https://github.com/DorianJoubaud/dorianjoubaud.github.io" target="_blank" rel="noopener">Source</a>.
+        </p>
+    </div>
+</footer>
+
+<script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+</script>
 
 </body>
-
 </html>
