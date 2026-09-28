@@ -72,15 +72,20 @@
                 scarce, imbalanced, or drawn from a different distribution.
             </p>
             <p>
-                In <strong>BALANCER</strong> (IEEE Access 2024), we trained a model to pick the right augmentation
-                method for each imbalanced dataset. <strong>DADA</strong> (PHM 2024) uses a Wasserstein CycleGAN
-                to translate labeled source-domain samples into synthetic target-domain samples, allowing a
-                remaining-useful-life predictor to be trained for a target domain that has no labels of its own.
-                <strong>ASCENSION</strong> (TMLR 2026) expands class regions inside a VAE latent space
-                so a classifier stays confident with little training data. Reach out if any of this is relevant
-                to your work.
+                Many futures are possible. I'd be glad if one of them has us collaborating.
             </p>
         </div>
+
+        <figure class="toy" hidden>
+            <div class="toy__frame">
+                <canvas class="toy__canvas" id="forecast-toy" role="img"
+                        aria-label="A time series of 48 observed points, followed by possible futures sampled from a Gaussian process. Each future is drawn, then fades out."></canvas>
+            </div>
+            <figcaption class="toy__caption">
+                <span>Drag on the left to redraw the past, click on the right to sample again. Each teal line is one possible future, sampled from a Gaussian process fitted to the observed window.</span>
+                <button type="button" class="chip toy__new" id="forecast-toy-new"><i class="fa-solid fa-rotate-right"></i> New series</button>
+            </figcaption>
+        </figure>
     </div>
 </section>
 
@@ -353,6 +358,7 @@
     </div>
 </footer>
 
+<script src="js/forecast-toy.js"></script>
 <script>
     document.getElementById('year').textContent = new Date().getFullYear();
 </script>

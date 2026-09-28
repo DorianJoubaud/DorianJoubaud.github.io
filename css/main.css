@@ -374,6 +374,44 @@ hr {
     line-height: 1.45;
 }
 
+/* ---------- Forecast toy ---------- */
+
+.toy {
+    margin: 1.25rem 0 0;
+}
+.toy__frame {
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    overflow: hidden;
+}
+.toy__canvas {
+    display: block;
+    width: 100%;
+    height: 220px;
+    cursor: crosshair;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+.toy__caption {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.55rem;
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: var(--color-faint);
+}
+.toy__new {
+    flex-shrink: 0;
+    border: 0;
+    font-family: inherit;
+    line-height: inherit;
+    cursor: pointer;
+}
+
 /* ---------- Footer ---------- */
 
 .site-footer {
@@ -399,6 +437,8 @@ hr {
     }
     .topnav__links { gap: 0.85rem; font-size: 0.85rem; }
     .topnav__brand { display: none; }
+    .toy__canvas { height: 180px; }
+    .toy__caption { flex-direction: column; gap: 0.5rem; }
 }
 
 /* Print: keep clean */
