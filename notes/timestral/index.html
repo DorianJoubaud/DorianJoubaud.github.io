@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Timestral with a ruler | Dorian Joubaud</title>
+    <meta name="description" content="Mistral AI's Timestral forecasting models, all four sizes, tested on series a person could forecast by hand, against the best forecast possible.">
+    <meta name="author" content="Dorian Joubaud">
+
+    <link rel="icon" type="image/png" sizes="32x32" href="../../favicon-32x32.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="post.css">
+</head>
+<body>
+
+<nav class="topnav">
+    <div class="topnav__inner">
+        <a class="topnav__brand" href="../../">Dorian Joubaud</a>
+        <ul class="topnav__links">
+            <li><a href="../../#about">About</a></li>
+            <li><a href="../../#publications">Publications</a></li>
+            <li><a href="../../#notes">Notes</a></li>
+        </ul>
+    </div>
+</nav>
+
+<main class="container note">
+
+    <p class="note__kicker">Note · October 2026</p>
+    <h1 class="note__title">Timestral with a ruler and a pencil</h1>
+    <p class="note__dek">
+        Mistral AI's new forecasting models, all four sizes, on series a person could forecast by hand,
+        scored against the best forecast possible.
+    </p>
+    <p class="note__meta">
+        Dorian Joubaud · code, data and pre-registered predictions:
+        <a href="https://github.com/DorianJoubaud/timestral-probes" target="_blank" rel="noopener">timestral-probes</a>
+    </p>
+
+    <div class="takeaways">
+        <p>In short</p>
+        <ul>
+            <li>On 76 simple tasks, Timestral 209M is the closest of three foundation models to the best possible
+                forecast: its error is 1.54 times the unavoidable one on average, against 1.86 for Chronos-2 and 2.02
+                for TimesFM 2.5. Timestral 28M is on par with Chronos-2.</li>
+            <li>Lines, cycles, gaps and level shifts are handled well. Unlike the models Layer 6 tested, Timestral does
+                not drift back to the mean on trends.</li>
+            <li>A line that should cross zero is held at zero. A default option clamps the forecast of any series whose
+                past is non-negative, and turning it off removes the error.</li>
+            <li>Beyond 1&nbsp;024 steps the uncertainty band collapses: the 80&nbsp;% band covers 79&nbsp;% of a random
+                walk over the first block, then 17&nbsp;% over the next.</li>
+            <li>Exponentials are not damped as in the other models, but the error still grows with the growth rate, and
+                forecasting the logarithm removes most of it.</li>
+            <li>A covariate known in advance is used. A series that leads the target is ignored, unless it is shifted
+                back by its lead and passed as a known covariate, which cuts the error to a few percent when the lead
+                covers the horizon.</li>
+        </ul>
+    </div>
+
+    <h2>Why simple series</h2>
+    <p>
+        Time series foundation models now top the public forecasting benchmarks. Yet a recent study from Layer 6
+        found that three of them return to the mean on trends, smooth out exponential growth and ignore a covariate
+        that tells them the future
+        (<a href="https://arxiv.org/abs/2610.02058" target="_blank" rel="noopener">Ghoroghchian et al., 2026</a>).
+        Timestral, which Mistral AI released on 15 October, was pre-trained on synthetic data only, so the question
+        is fair: has it learned what a ruler and a pencil would do?
+    </p>
+    <p>
+        We tested its four sizes (5M, 28M, 123M and 209M parameters) on series where a person would forecast well,
+        and where the best possible forecast is known exactly.
+    </p>
+
+    <h2>How we tested</h2>
+    <p>
+        Each task draws hundreds of series from a known process: a line, an exponential, a cycle, a random walk, a
+        cycle with a gap. Because the process is known, so is the best forecast anyone could make, which we call the
+        oracle. For a line with noise, it is the line itself with the noise band around it. For a random walk, it is
+        the last value, with a band that widens like the square root of the horizon.
+    </p>
+    <p>
+        Each model is scored by its quantile loss over the deciles, divided by the oracle's. A ratio of 1 is the best
+        possible, a ratio of 2 means twice the unavoidable error. Unless stated, the context has 512 steps and the
+        horizon 96, and the noise is 1&nbsp;% of the signal's spread. Further grids vary the context from 128 to
+        8&nbsp;192 steps and the horizon up to 4&nbsp;096, and add covariates.
+    </p>
+    <p>
+        Timestral runs as shipped, then with each of its two test-time options turned off, and on the logarithm of
+        positive series. Chronos-2 and TimesFM 2.5 run on the same series with their recommended settings, next to
+        classical methods such as a least-squares line and AutoETS. We also regenerated SimpleTimeBench, the Layer 6
+        benchmark, with its own code. Our Chronos-2 lands where Layer 6 reported it, which checks the pipeline.
+    </p>
+    <p>
+        Before running anything, we read Timestral's inference code and wrote down six predictions, committed with the
+        code. The last sections say which held.
+    </p>
+
+    <h2>See for yourself</h2>
+    <figure class="fig">
+        <div class="fig__frame viewer" id="viewer" data-src="examples.json" hidden>
+            <div class="viewer__controls">
+                <label class="visually-hidden" for="viewer-task">Task</label>
+                <select id="viewer-task"></select>
+                <div class="viewer__row" id="viewer-series"></div>
+            </div>
+            <div class="viewer__controls">
+                <div class="viewer__row" id="viewer-model"></div>
+            </div>
+            <div class="viewer__controls">
+                <div class="viewer__row" id="viewer-option"></div>
+            </div>
+            <div class="viewer__plot">
+                <canvas role="img" aria-label="The end of the context, what happened next, the selected model's median and 80 percent band, and the best possible 80 percent band."></canvas>
+                <div class="viewer__tip" hidden></div>
+            </div>
+            <div class="viewer__legend">
+                <span><span class="key-line" style="border-color:#8a8f92"></span>context (last 192 steps)</span>
+                <span><span class="key-line" style="border-color:#1f2222"></span>what happened</span>
+                <span><span class="key-line" data-model-key style="border-color:#11ABB0"></span>model median</span>
+                <span><span class="key-band" data-model-key style="background:#11ABB0"></span>model 80 % band</span>
+                <span><span class="key-dash"></span>best possible 80 % band</span>
+            </div>
+            <p class="viewer__note"></p>
+        </div>
+        <figcaption>
+            Two series per task, drawn from the processes of the study. The models read the whole context, the plot
+            shows its last 192 steps. The y axis follows what happened, so a forecast that runs away leaves the frame.
+        </figcaption>
+    </figure>
+
+    <h2>Closest to the best possible</h2>
+    <p>
+        The main grid has 76 tasks with a positive unavoidable error: lines, curves, cycles, breaks, noise and random
+        walks, at two noise levels. Averaged over them, Timestral 209M is the closest to the oracle.
+    </p>
+    <figure class="fig">
+        <div class="fig__frame">
+            <p class="fig__title">Error relative to the best possible forecast</p>
+            <p class="fig__sub">Geometric mean over 76 tasks, 1 is the best possible</p>
+            <div id="fig-overall"></div>
+        </div>
+    </figure>
+    <p>
+        Head to head, Timestral 209M has the lower error on 53 of the 76 tasks against Chronos-2, and on 58 against
+        TimesFM 2.5. Timestral 28M, a quarter of Chronos-2's size, is on par with it (33 of 76), which matches what
+        Mistral reports on GIFT-Eval. The classical models are far behind, mostly because a non-seasonal ETS or ARIMA
+        cannot follow a cycle. On pure noise and on random walks without drift, every foundation model is within
+        4&nbsp;% of the oracle.
+    </p>
+
+    <h2>Why lines may be easy for Timestral</h2>
+    <p>
+        Timestral standardises each patch of 32 steps with the mean and standard deviation of everything it has seen
+        so far, then squashes it with asinh. In this frame, a straight line looks flat: its standardised value tends to
+        &radic;3, about 1.73, whatever its slope and intercept. Continuing a line then amounts to staying at the same
+        level. We did not test this explanation directly, but the forecasts fit it.
+    </p>
+    <p>
+        On lines, Timestral's error is 1.2 to 1.5 times the oracle's at every size, against 1.7 to
+        1.9 for Chronos-2. The gap is widest with short contexts: with 128 steps of history, Timestral 209M is at 2.2
+        times the oracle and Chronos-2 at 9.7. On SimpleTimeBench's lines, Timestral's forecast leans toward the
+        context mean on 44&nbsp;% of the steps, close to the unbiased 50&nbsp;%, where Chronos-2 does so on 99&nbsp;%.
+        A parabola, which looks flat in the same frame, is harder: only the 209M stays within twice the oracle.
+    </p>
+
+    <h2>Exponentials: not damped, but the error grows</h2>
+    <figure class="fig">
+        <div class="fig__frame">
+            <p class="fig__title">Error relative to the best possible forecast, exponential growth</p>
+            <p class="fig__sub">Growth over the 512 steps of context, 1 % multiplicative noise</p>
+            <div id="fig-exp"></div>
+        </div>
+    </figure>
+    <p>
+        Chronos-2 and TimesFM 2.5 damp exponential growth: from a growth of e³ over the context, their median
+        ends below the truth on every series. Timestral does not damp. It overshoots moderate growth slightly and is
+        nearly unbiased on average at e¹⁰. Its error still grows with the growth, from 1.2 times the oracle
+        at e¹ to 15 times at e¹⁰, much like Chronos-2.
+    </p>
+    <p>
+        The fix is old: forecast the logarithm, then exponentiate the quantiles. The exponential becomes a line, which
+        Timestral handles well, and the error falls to between 1.1 and 2.1 times the oracle.
+    </p>
+
+    <h2>Crossing zero: a default option</h2>
+    <figure class="fig">
+        <div class="fig__frame">
+            <p class="fig__title">A line that crosses zero inside the horizon, and its mirror image</p>
+            <p class="fig__sub">Error relative to the best possible forecast</p>
+            <div id="fig-cross"></div>
+        </div>
+    </figure>
+    <p>
+        By default, Timestral's <code>forecast</code> clamps at zero the forecast of every series whose observed past is
+        non-negative. It is a sensible guard for demand or energy, but it breaks a line that is about to go below zero:
+        the error is 14.6 times the oracle's, against 1.3 on the mirror image of the same task. TimesFM 2.5, whose
+        recommended setting does the same, behaves alike. With <code>clip_nonnegative=False</code>, Timestral is back at
+        1.3.
+    </p>
+    <p>
+        The other default averages the forecast with the reflected forecast of the negated series, and it helps.
+        Turning it off raises the error on sines by 5 to 29&nbsp;% depending on the size, and changes nothing on noise.
+    </p>
+
+    <h2>Long horizons: the band collapses after one block</h2>
+    <figure class="fig">
+        <div class="fig__frame">
+            <p class="fig__title">Width of the 80 % band on a random walk, 4 096 steps ahead</p>
+            <p class="fig__sub">Mean over 64 series, in units of the typical one-step move</p>
+            <div id="fig-horizon"></div>
+        </div>
+    </figure>
+    <p>
+        Timestral forecasts up to 1&nbsp;024 steps in one pass. Beyond, it appends that block's median to the context
+        and forecasts the next block from it. The collapse starts exactly there, at step 1&nbsp;025. Our reading is
+        that a median is smooth, so the model then sees a calm recent past and returns a narrow band. On a random walk, the 80&nbsp;% band covers 79&nbsp;% of the truth over the first 1&nbsp;024
+        steps, then 17, 7 and 2&nbsp;% over the next three blocks. Chronos-2, which rolls long horizons out from nine
+        quantile paths, keeps between 67 and 81&nbsp;%.
+    </p>
+    <p>
+        Within one block, Timestral is the better of the two. On a line forecast 1&nbsp;024 steps ahead, its MASE is
+        0.86, close to the oracle's 0.71, where Chronos-2's is 7.8.
+    </p>
+
+    <h2>Covariates: known in advance yes, leading no</h2>
+    <figure class="fig">
+        <div class="fig__frame">
+            <p class="fig__title">Error with the covariate, divided by the error without it</p>
+            <p class="fig__sub">Below 1, the covariate is used. The black tick is the best possible ratio. A leader is
+                given as a past covariate, or shifted back by its lead into a known covariate.</p>
+            <div id="fig-cov"></div>
+        </div>
+    </figure>
+    <p>
+        When the target is twice a covariate plus one, and the covariate is known over the horizon, Timestral's error
+        falls to 6 to 8&nbsp;% of its error without it, Chronos-2's to 8 to 11&nbsp;%. When the covariate is the target
+        itself 96 steps ahead, given over the past only, its last 96 values are the whole future. Neither model uses it:
+        Timestral's error moves by less than 2&nbsp;%, Chronos-2's falls by 14&nbsp;% at most. This is the blind spot
+        Layer 6 found in Chronos-2, Moirai and Toto, and Timestral shares it.
+    </p>
+    <p>
+        There is a way around it when the leader runs at least as far ahead as the horizon. Shifted back by its lead,
+        the leading series becomes a covariate known in advance over the next steps, which Timestral does use. With a
+        leader 96 steps ahead and a 96-step horizon, its error then falls to 3 or 4&nbsp;% of the error without it,
+        against 8 to 13&nbsp;% for Chronos-2. On SimpleTimeBench's random walk with its lagged copy, the error relative
+        to a flat forecast drops from 1.02 to 0.10. With a shorter lead, the shifted covariate stops before the horizon
+        ends, and Timestral then does worse than without it in five of our six cases, by up to a factor 3.8 on a sine.
+        We tried this after the main study, so it was not among the predictions.
+    </p>
+    <p>
+        An unrelated covariate, an independent random walk, changes Timestral's error by 1 to 7&nbsp;% and raises
+        Chronos-2's by 12 to 29&nbsp;%.
+    </p>
+
+    <h2>Breaks, gaps and slow cycles</h2>
+    <p>
+        Timestral adapts to a recent level shift, at 1.6 times the oracle, where Chronos-2 holds on to the old level and
+        reaches 37 times. A block of missing values covering a tenth of the context costs it almost nothing. With fewer
+        than two periods of a slow cycle in the context, TimesFM 2.5 does better (2.1 against 3.8 times the oracle),
+        and from 1&nbsp;024 steps of context both are close to the oracle. Every model fails on a chirp, whose period
+        keeps shrinking.
+    </p>
+
+    <h2>What we predicted, and what held</h2>
+    <p>
+        We committed six predictions before the first run, from the code alone. One held outright, the others failed on
+        at least one of their criteria. The one we got most wrong is the exponentials: we expected damping, and found
+        overshooting.
+    </p>
+    <figure class="fig">
+        <div class="fig__frame">
+            <table class="text-table">
+                <tr><th>Prediction</th><th>Verdict</th><th>What we found</th></tr>
+                <tr><td>Lines and parabolas are easy</td><td>partly</td><td>lines at 1.2 to 1.5 times the oracle, parabolas above 2 for three sizes</td></tr>
+                <tr><td>Exponentials are damped</td><td>no</td><td>Timestral overshoots moderate growth, Chronos-2 and TimesFM damp it</td></tr>
+                <tr><td>A line crossing zero is held at zero</td><td>yes, at low noise</td><td>7 to 49 times the error of its mirror, 1.6 times with strong noise</td></tr>
+                <tr><td>Mirror averaging is neutral</td><td>no</td><td>it lowers the error on sines by 5 to 29&nbsp;%</td></tr>
+                <tr><td>Size matters little</td><td>yes</td><td>209M only 2.6&nbsp;% better than 123M, 5M at twice the oracle</td></tr>
+                <tr><td>The band collapses after 1&nbsp;024 steps</td><td>yes, one criterion missed</td><td>coverage 79&nbsp;%, then 17, 7 and 2&nbsp;%</td></tr>
+            </table>
+        </div>
+    </figure>
+
+    <h2>What this means</h2>
+    <p>For people using Timestral:</p>
+    <ul>
+        <li>Pass <code>clip_nonnegative=False</code> when a series that is positive today can go below zero, such as a
+            balance, a net flow or a difference.</li>
+        <li>For exponential growth, forecast the logarithm.</li>
+        <li>Within 1&nbsp;024 steps the bands are reliable. Beyond, treat them as far too narrow.</li>
+        <li>A series that leads the target by at least the horizon is worth shifting back by its lead and passing as a
+            known covariate. With a shorter lead, forecast only as far as the lead.</li>
+    </ul>
+    <p>
+        For the model itself, two of the weak points are in the decoding rather than in the network: the default clip, and
+        the median fed back between blocks. Rolling out from quantile paths, as Chronos-2 does, would likely keep the
+        band. In our tests Timestral does not exploit a series that leads the target, which may be a question for
+        its synthetic pre-training.
+    </p>
+
+    <h2>Method details</h2>
+    <ul>
+        <li>Timestral 1.0.0 (inference code at <code>a534bdb</code>), weights at their Hugging Face revisions of
+            15 October 2026. Chronos-2 through chronos-forecasting 2.3.2, TimesFM 2.5 through timesfm 3.0.2, both with
+            their recommended settings. Chronos-2's quantiles can cross, so they are sorted, which never increases the
+            loss. AutoETS and AutoARIMA from statsforecast 2.1.1, non-seasonal, on the last 1&nbsp;024 steps.</li>
+        <li>About 190&nbsp;000 target series in 330 settings, drawn once from seeds derived from the setting names, so
+            that every model sees the same series. SimpleTimeBench was regenerated with its own code at
+            <code>a7d6c6e</code>, 1&nbsp;024 series per distribution.</li>
+        <li>Scores: quantile loss over the nine deciles, scaled by the error of the one-step naive forecast on the
+            context, divided by the oracle's. Comparisons across settings use this ratio only.</li>
+        <li>Everything ran in 25 minutes on one node of the MeluXina supercomputer (four A100 GPUs), and the follow-up on
+            shifted leaders in 10 more. The predictions and their outcome, with every criterion and number, are in the
+            repository.</li>
+    </ul>
+
+</main>
+
+<footer class="site-footer">
+    <div class="container">
+        <p>© 2026 Dorian Joubaud. <a href="../../">Home</a>.</p>
+    </div>
+</footer>
+
+<script src="viewer.js"></script>
+<script src="figures.js"></script>
+</body>
+</html>

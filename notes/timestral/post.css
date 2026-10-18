@@ -1,0 +1,203 @@
+/* ============================================================
+   Note pages: a single long article on the site's light theme.
+   ============================================================ */
+
+.note {
+    padding: 2.5rem 0 1rem;
+}
+.note__kicker {
+    margin: 0 0 0.4rem;
+    color: var(--color-faint);
+    font-size: 0.85rem;
+    letter-spacing: 0.02em;
+}
+.note__title {
+    margin: 0 0 0.6rem;
+    font-size: 2rem;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+.note__dek {
+    margin: 0 0 1.25rem;
+    color: var(--color-muted);
+    font-size: 1.1rem;
+    line-height: 1.5;
+}
+.note__meta {
+    margin: 0 0 2rem;
+    color: var(--color-faint);
+    font-size: 0.85rem;
+}
+.note h2 {
+    margin: 2.75rem 0 0.75rem;
+    font-size: 1.35rem;
+    line-height: 1.3;
+}
+.note h3 {
+    margin: 2rem 0 0.5rem;
+    font-size: 1.05rem;
+}
+.note p, .note li { margin: 0 0 1rem; }
+.note ul, .note ol { padding-left: 1.25rem; margin: 0 0 1rem; }
+.note code {
+    font-family: var(--font-mono);
+    font-size: 0.86em;
+    background: var(--color-chip-bg);
+    padding: 0.05em 0.3em;
+    border-radius: 3px;
+}
+
+.takeaways {
+    margin: 0 0 2rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius);
+    background: var(--color-surface);
+}
+.takeaways p:first-child { margin-top: 0; font-weight: 600; }
+.takeaways ul { margin-bottom: 0; }
+.takeaways li:last-child { margin-bottom: 0; }
+
+/* ---------- Figures ---------- */
+
+.fig {
+    margin: 1.5rem 0 2rem;
+}
+.fig__frame {
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    padding: 0.9rem 1rem 0.75rem;
+}
+.fig__title {
+    margin: 0 0 0.15rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+.fig__sub {
+    margin: 0 0 0.75rem;
+    font-size: 0.82rem;
+    color: var(--color-muted);
+}
+.fig figcaption {
+    margin-top: 0.55rem;
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: var(--color-faint);
+}
+.fig table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    font-variant-numeric: tabular-nums;
+}
+.fig th, .fig td {
+    padding: 0.3rem 0.4rem;
+    border-bottom: 1px solid var(--color-rule);
+    text-align: right;
+}
+.fig th:first-child, .fig td:first-child { text-align: left; }
+.fig details { margin-top: 0.6rem; font-size: 0.85rem; }
+.fig summary { cursor: pointer; color: var(--color-muted); }
+
+/* ---------- Viewer ---------- */
+
+.viewer__controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.75rem;
+    align-items: center;
+    margin-bottom: 0.6rem;
+}
+.viewer__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+.viewer select {
+    font-family: inherit;
+    font-size: 0.85rem;
+    padding: 0.25rem 0.4rem;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    color: var(--color-text);
+    max-width: 100%;
+}
+.viewer .chip {
+    border: 0;
+    font-family: inherit;
+    cursor: pointer;
+}
+.viewer .chip:disabled { opacity: 0.4; cursor: default; }
+.viewer .chip:disabled:hover { background: var(--color-chip-bg); color: var(--color-muted); }
+.viewer .chip--on, .viewer .chip--on:hover {
+    background: var(--color-text);
+    color: #fff;
+}
+.swatch {
+    display: inline-block;
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 2px;
+}
+.viewer__plot {
+    position: relative;
+}
+.viewer canvas {
+    display: block;
+    width: 100%;
+    height: 300px;
+    cursor: crosshair;
+}
+.viewer__tip {
+    position: absolute;
+    pointer-events: none;
+    padding: 0.35rem 0.5rem;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius);
+    background: rgba(255, 255, 255, 0.96);
+    font-size: 0.78rem;
+    line-height: 1.4;
+    color: var(--color-text);
+    white-space: nowrap;
+}
+.viewer__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 1rem;
+    margin-top: 0.4rem;
+    font-size: 0.8rem;
+    color: var(--color-muted);
+}
+.viewer__legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
+.key-line { display: inline-block; width: 1.1rem; height: 0; border-top: 2px solid; }
+.key-dash { display: inline-block; width: 1.1rem; height: 0; border-top: 1px dashed var(--color-text); }
+.key-band { display: inline-block; width: 1.1rem; height: 0.6rem; opacity: 0.25; }
+.viewer__note { margin: 0.3rem 0 0; font-size: 0.8rem; color: var(--color-faint); }
+
+/* ---------- Bars (horizontal, value at the end) ---------- */
+
+.bars { width: 100%; }
+.bars svg { display: block; width: 100%; height: auto; }
+.bars text { font-family: var(--font-sans); font-size: 12px; fill: var(--color-text); }
+.bars .muted { fill: var(--color-muted); }
+
+@media (max-width: 600px) {
+    .note__title { font-size: 1.6rem; }
+    .viewer canvas { height: 230px; }
+}
+
+.visually-hidden {
+    position: absolute !important;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0);
+    white-space: nowrap; border: 0;
+}
+
+.fig .text-table th, .fig .text-table td { text-align: left; vertical-align: top; }
+
+/* wide tables scroll inside their frame instead of widening the page */
+.fig table { display: block; overflow-x: auto; }
