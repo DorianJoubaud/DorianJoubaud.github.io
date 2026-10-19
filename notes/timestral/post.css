@@ -2,8 +2,9 @@
    Note pages: a single long article on the site's light theme.
    ============================================================ */
 
-.note {
-    padding: 2.5rem 0 1rem;
+.note {                     /* top and bottom only: the sides keep the container's gutter */
+    padding-top: 2.5rem;
+    padding-bottom: 1rem;
 }
 .note__kicker {
     margin: 0 0 0.4rem;
@@ -48,16 +49,6 @@
     border-radius: 3px;
 }
 
-.takeaways {
-    margin: 0 0 2rem;
-    padding: 1rem 1.25rem;
-    border: 1px solid var(--color-rule);
-    border-radius: var(--radius);
-    background: var(--color-surface);
-}
-.takeaways p:first-child { margin-top: 0; font-weight: 600; }
-.takeaways ul { margin-bottom: 0; }
-.takeaways li:last-child { margin-bottom: 0; }
 
 /* ---------- Figures ---------- */
 
@@ -101,55 +92,13 @@
 .fig details { margin-top: 0.6rem; font-size: 0.85rem; }
 .fig summary { cursor: pointer; color: var(--color-muted); }
 
-/* ---------- Viewer ---------- */
+/* ---------- Tooltip and legend, shared by every figure ---------- */
 
-.viewer__controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 0.75rem;
-    align-items: center;
-    margin-bottom: 0.6rem;
-}
-.viewer__row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
-}
-.viewer select {
-    font-family: inherit;
-    font-size: 0.85rem;
-    padding: 0.25rem 0.4rem;
-    border: 1px solid var(--color-rule);
-    border-radius: var(--radius);
-    background: var(--color-surface);
-    color: var(--color-text);
-    max-width: 100%;
-}
-.viewer .chip {
-    border: 0;
-    font-family: inherit;
-    cursor: pointer;
-}
-.viewer .chip:disabled { opacity: 0.4; cursor: default; }
-.viewer .chip:disabled:hover { background: var(--color-chip-bg); color: var(--color-muted); }
-.viewer .chip--on, .viewer .chip--on:hover {
-    background: var(--color-text);
-    color: #fff;
-}
 .swatch {
     display: inline-block;
     width: 0.6rem;
     height: 0.6rem;
     border-radius: 2px;
-}
-.viewer__plot {
-    position: relative;
-}
-.viewer canvas {
-    display: block;
-    width: 100%;
-    height: 300px;
-    cursor: crosshair;
 }
 .viewer__tip {
     position: absolute;
@@ -174,8 +123,6 @@
 .viewer__legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
 .key-line { display: inline-block; width: 1.1rem; height: 0; border-top: 2px solid; }
 .key-dash { display: inline-block; width: 1.1rem; height: 0; border-top: 1px dashed var(--color-text); }
-.key-band { display: inline-block; width: 1.1rem; height: 0.6rem; opacity: 0.25; }
-.viewer__note { margin: 0.3rem 0 0; font-size: 0.8rem; color: var(--color-faint); }
 
 /* ---------- Bars (horizontal, value at the end) ---------- */
 
@@ -186,7 +133,6 @@
 
 @media (max-width: 600px) {
     .note__title { font-size: 1.6rem; }
-    .viewer canvas { height: 230px; }
 }
 
 .visually-hidden {
@@ -201,3 +147,112 @@
 
 /* wide tables scroll inside their frame instead of widening the page */
 .fig table { display: block; overflow-x: auto; }
+
+/* ---------- Forecast plots ---------- */
+
+.fc__bar { margin-bottom: 0.55rem; }
+.fc__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1rem;
+    align-items: center;
+}
+.fc__row + .fc__row { margin-top: 0.4rem; }
+.fc__group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    align-items: center;
+}
+.fc__foot { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; align-items: flex-start; margin-top: 0.4rem; }
+.fc__foot .viewer__legend { flex: 1 1 18rem; margin-top: 0.15rem; }
+.fc__group--series { margin-left: auto; }
+.fc__group--series:empty { display: none; }
+.fc__label { font-size: 0.78rem; color: var(--color-faint); margin-right: 0.1rem; }
+.fc__task { margin: 0 !important; font-size: 0.95rem; font-weight: 600; }
+.fc .chip, .fc .chip:hover { border: 0; font-family: inherit; cursor: pointer; }
+.fc .chip:disabled { opacity: 0.4; cursor: default; }
+.fc .chip:disabled:hover { background: var(--color-chip-bg); color: var(--color-muted); }
+.fc .chip--on, .fc .chip--on:hover { background: var(--color-text); color: #fff; }
+.fc__plot svg, .mini__plot svg { display: block; width: 100%; height: auto; touch-action: pan-y; }
+.fc__plot text { font-family: var(--font-sans); font-size: 12px; fill: var(--color-text); }
+.fc__plot .muted { fill: var(--color-muted); }
+.fc__sum { margin: 0.5rem 0 0; font-size: 0.82rem; line-height: 1.45; color: var(--color-muted); }
+.note details.method { margin: 2.5rem 0 1rem; }
+.note details.method summary { cursor: pointer; font-weight: 600; margin-bottom: 0.75rem; }
+.note details.method li { font-size: 0.92rem; color: var(--color-muted); }
+.fc__sum b { color: var(--color-text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.key-model { position: relative; display: inline-block; width: 1.1rem; height: 0.7rem; }
+.key-model::before {
+    content: ''; position: absolute; inset: 0;
+    background: var(--c); opacity: 0.22; border-radius: 2px;
+}
+.key-model::after {
+    content: ''; position: absolute; left: 0; right: 0; top: 50%;
+    height: 2px; margin-top: -1px; background: var(--c);
+}
+.viewer__tip .swatch { vertical-align: -1px; }
+
+/* ---------- Cards: the six findings, the oracle, every task ---------- */
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
+    gap: 0.75rem;
+    margin: 0 0 2.25rem;
+}
+.cards--two { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); margin-bottom: 1.25rem; }
+.card, .card:hover {
+    display: block;
+    padding: 0.65rem 0.75rem 0.7rem;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font: inherit;
+    text-align: left;
+}
+a.card:hover, button.card:hover { border-color: var(--color-accent); }
+button.card { cursor: pointer; width: 100%; }
+.card--on, .card--on:hover { border-color: var(--color-text); }
+.card__title { display: block; margin-bottom: 0.35rem; font-size: 0.9rem; font-weight: 600; line-height: 1.3; }
+.card__text { display: block; margin-top: 0.4rem; font-size: 0.8rem; line-height: 1.45; color: var(--color-muted); }
+.mini__plot { display: block; }
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.5rem;
+    margin: 1rem 0 2rem;
+}
+.gallery .card { padding: 0.45rem 0.5rem 0.5rem; }
+.gallery .card__title { font-size: 0.78rem; font-weight: 500; margin-bottom: 0.25rem; }
+.gallery__group {
+    grid-column: 1 / -1;
+    margin: 0.6rem 0 0 !important;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+.gallery__group:first-child { margin-top: 0 !important; }
+.card__nums {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 0.3rem;
+    font-size: 0.75rem;
+    color: var(--color-muted);
+    font-variant-numeric: tabular-nums;
+}
+.card__nums span { display: inline-flex; align-items: center; gap: 0.25rem; }
+.cards__lede { margin: 0 0 0.4rem !important; font-size: 0.9rem; color: var(--color-muted); }
+.cards__legend { margin: 0 0 0.75rem; }
+.cards__legend + .gallery { margin-top: 0.5rem; }
+
+@media (max-width: 600px) {
+    .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .fc .chip { font-size: 0.78rem; padding: 0.14rem 0.5rem; }
+    .fig__frame { padding: 0.75rem 0.7rem 0.65rem; }
+}
+
+/* the six cards keep their plots on one line when a title wraps */
+@media (min-width: 640px) {
+    .cards:not(.cards--two) .card__title { min-height: 2.6em; }
+}
