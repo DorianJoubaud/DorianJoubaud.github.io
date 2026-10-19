@@ -234,36 +234,27 @@
     </div>
     <div class="gallery" id="gallery"></div>
 
-    <h2>What we predicted, and what held</h2>
-    <p>
-        We read Timestral's inference code and committed six predictions before the first run. One held outright. We
-        got the exponentials most wrong: we expected damping, and found Timestral overshooting moderate growth.
-    </p>
-    <figure class="fig">
-        <div class="fig__frame">
-            <table class="text-table">
-                <tr><th>Prediction</th><th>Verdict</th><th>What we found</th></tr>
-                <tr><td>Lines and parabolas are easy</td><td>partly</td><td>lines at 1.2 to 1.5 times the best possible, parabolas above 2 for three sizes</td></tr>
-                <tr><td>Exponentials are damped</td><td>no</td><td>Timestral overshoots moderate growth, Chronos-2 and TimesFM damp it</td></tr>
-                <tr><td>A line crossing zero is held at zero</td><td>yes, at low noise</td><td>7 to 49 times the error of its mirror, 1.6 times with strong noise</td></tr>
-                <tr><td>Mirror averaging is neutral</td><td>no</td><td>it lowers the error on sines by 5 to 29&nbsp;%</td></tr>
-                <tr><td>Size matters little</td><td>yes</td><td>209M only 2.6&nbsp;% better than 123M, 5M at twice the best possible</td></tr>
-                <tr><td>The band collapses after 1&nbsp;024 steps</td><td>yes, one criterion missed</td><td>coverage 79&nbsp;%, then 17, 7 and 2&nbsp;%</td></tr>
-            </table>
-        </div>
-    </figure>
-
-    <h2>What this means</h2>
-    <ul>
-        <li>Pass <code>clip_nonnegative=False</code> when a series that is positive today can go below zero.</li>
-        <li>For exponential growth, forecast the logarithm.</li>
-        <li>Within 1&nbsp;024 steps the bands are reliable. Beyond, treat them as far too narrow.</li>
-        <li>Shift a series that leads the target by at least the horizon, and pass it as a known covariate.</li>
+    <h2 id="findings">Findings</h2>
+    <ul class="findings">
+        <li><b>Closest to the best possible.</b> Timestral 209M's error is 1.54 times the unavoidable one on average,
+            against 1.86 for Chronos-2 and 2.02 for TimesFM 2.5. The 28M already matches Chronos-2.</li>
+        <li><b>Lines are easy.</b> 1.2 to 1.5 times the best possible at every size, with a far tighter band than
+            Chronos-2 on a short history.</li>
+        <li><b>Crossing zero needs <code>clip_nonnegative=False</code>.</b> The default clip holds a falling line at
+            zero, 14.6 times the best possible instead of 1.3.</li>
+        <li><b>Exponentials: forecast the logarithm.</b> Every model's error grows with the growth rate. On log x,
+            Timestral stays between 1.1 and 2.1 times the best possible.</li>
+        <li><b>Trust the band within 1&nbsp;024 steps only.</b> Beyond one decoded block, the median is fed back and
+            the band collapses.</li>
+        <li><b>Shift a leading series by its lead.</b> As is, it is ignored. Passed as a known covariate, it cuts the
+            error to 4&nbsp;% when its lead covers the horizon.</li>
+        <li><b>Level shifts and gaps are handled.</b> With less than two periods of a slow cycle, TimesFM 2.5 does
+            better, and a chirp defeats every model.</li>
+        <li><b>Keep the mirror averaging.</b> Without it, the error on sines rises by 5 to 29&nbsp;%.</li>
+        <li><b>For the model,</b> both weak points sit in the decoding, not in the network: the default clip, and the
+            median fed back between blocks. Rolling out from quantile paths, as Chronos-2 does, would likely keep the
+            band.</li>
     </ul>
-    <p>
-        For the model, two of the weak points sit in the decoding, not in the network: the default clip, and the
-        median fed back between blocks. Rolling out from quantile paths, as Chronos-2 does, would likely keep the band.
-    </p>
 
     <details class="method">
         <summary>Method details</summary>
@@ -285,9 +276,9 @@
             <li>Scores: quantile loss over the nine deciles, scaled by the error of the one-step naive forecast on the
                 context, divided by that of the best possible forecast. Comparisons across settings use this ratio only.
                 The plots show the 10&nbsp;%, 50&nbsp;% and 90&nbsp;% quantiles.</li>
-            <li>The shifted leader was tried after the main study, so it was not among the predictions.</li>
-            <li>Everything ran in 25 minutes on one node of the MeluXina supercomputer (four A100 GPUs), and the follow-up
-                in 10 more. The predictions and their outcome, with every criterion and number, are in the repository.</li>
+            <li>Everything ran in 25 minutes on one node of the MeluXina supercomputer (four A100 GPUs), and the
+                follow-ups in a few minutes more. Before each run we committed predictions written from the code: they
+                and their outcome are in the repository. The shifted leader was tried after the main study.</li>
         </ul>
     </details>
 

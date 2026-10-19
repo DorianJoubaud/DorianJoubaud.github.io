@@ -18,7 +18,7 @@
     };
     var MODEL = { 'timestral-209m': 'Timestral 209M', 'chronos-2': 'Chronos-2', 'timesfm-2.5': 'TimesFM 2.5',
                   'linreg': 'Least-squares line' };
-    var VARIANT = { noclip: 'clip off', log: 'on log x' };
+    var VARIANT = { noclip: 'clip off', log: 'on log x', basehead: 'base quantile head' };
     var MODE = { past_cov: 'leader as given', lead_known: 'leader shifted', known_cov: 'with c' };
     var LABELS = {
         linear_up: 'Rising line', linear_down: 'Falling line', linear_cross: 'Line falling through zero',
@@ -70,6 +70,7 @@
     }
     function colorOf(key) {
         var p = parts(key);
+        if (p.model === 'timesfm-2.5') return C.timesfm;              // its base head is its own setting, not an option
         if (p.variant !== 'default' || p.mode === 'lead_known' || p.mode === 'known_cov') return C.option;
         if (p.model.indexOf('timestral') === 0) return C.timestral;
         if (p.model === 'chronos-2') return C.chronos;
@@ -408,6 +409,15 @@
             var head = cfg.summary === 'alone' ? 'Error with the covariate divided by the error without it, over the '
                 : 'Error relative to the best possible, over the ';
             var out = items.length ? head + cell.n + ' series of this task: ' + items.join(' · ') + '.' : '';
+            if (cfg.blocks && cell.blocks) {
+                var bl = keys.concat(['oracle']).filter(function (k) { return cell.blocks[k]; }).map(function (k) {
+                    return (k === 'oracle' ? 'best possible' : nameOf(k)) + ' <b>' + cell.blocks[k].map(function (v) {
+                        return Math.round(100 * v);
+                    }).join(' \u00b7 ') + '&nbsp;%</b>';
+                });
+                if (bl.length) out += '<br>Share of the truth inside the 80&nbsp;% band, block by block of 1&nbsp;024 steps: '
+                    + bl.join(', ') + '.';
+            }
             if (cfg.under) {
                 var under = keys.filter(function (k) { return cell.u[k] !== null && cell.u[k] !== undefined; })
                     .map(function (k) { return nameOf(k) + ' <b>' + Math.round(100 * cell.u[k]) + '&nbsp;%</b>'; });

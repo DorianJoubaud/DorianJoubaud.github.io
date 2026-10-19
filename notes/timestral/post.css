@@ -178,6 +178,8 @@
 .fc__plot text { font-family: var(--font-sans); font-size: 12px; fill: var(--color-text); }
 .fc__plot .muted { fill: var(--color-muted); }
 .fc__sum { margin: 0.5rem 0 0; font-size: 0.82rem; line-height: 1.45; color: var(--color-muted); }
+.findings li { margin-bottom: 0.55rem; }
+.findings b { font-weight: 600; }
 .note details.method { margin: 2.5rem 0 1rem; }
 .note details.method summary { cursor: pointer; font-weight: 600; margin-bottom: 0.75rem; }
 .note details.method li { font-size: 0.92rem; color: var(--color-muted); }
