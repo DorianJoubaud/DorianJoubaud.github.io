@@ -13,12 +13,12 @@
 
     var NS = 'http://www.w3.org/2000/svg';
     var C = {
-        timestral: '#11ABB0', option: '#6250d6', chronos: '#eb6834', timesfm: '#2a78d6', toto: '#2f9e44', totoBlock: '#c2255c', ruler: '#6a6f72',
+        timestral: '#11ABB0', option: '#6250d6', chronos: '#eb6834', timesfm: '#2a78d6', toto: '#2f9e44', totoBlock: '#c2255c', toto1: '#9c6b30', ruler: '#6a6f72',
         ink: '#1f2222', past: '#9a9fa2', muted: '#6a6f72', rule: '#ececea', zero: '#c4c8c6', surface: '#ffffff'
     };
     var MODEL = { 'timestral-209m': 'Timestral 209M', 'chronos-2': 'Chronos-2', 'timesfm-2.5': 'TimesFM 2.5',
-                  'toto2-2.5b': 'Toto 2.0 2.5B', 'linreg': 'Least-squares line' };
-    var VARIANT = { noclip: 'clip off', log: 'on log x', basehead: 'base quantile head', block768: 'median fed back' };
+                  'toto2-2.5b': 'Toto 2.0 2.5B', 'toto1': 'Toto 1.0', 'linreg': 'Least-squares line' };
+    var VARIANT = { noclip: 'clip off', log: 'on log x', basehead: 'base quantile head', block768: 'median fed back', qpaths: 'quantile paths', meanfeed: 'mean fed back' };
     var MODE = { past_cov: 'leader as given', lead_known: 'leader shifted', known_cov: 'with c' };
     var LABELS = {
         linear_up: 'Rising line', linear_down: 'Falling line', linear_cross: 'Line falling through zero',
@@ -71,7 +71,9 @@
     function colorOf(key) {
         var p = parts(key);
         if (p.model === 'timesfm-2.5') return C.timesfm;              // its base head is its own setting, not an option
-        if (p.model.indexOf('toto2') === 0) return p.variant === 'block768' ? C.totoBlock : C.toto;
+        if (p.model.indexOf('toto2') === 0 && p.variant !== 'qpaths' && p.variant !== 'log')
+            return p.variant === 'block768' ? C.totoBlock : C.toto;
+        if (p.model === 'toto1') return p.variant === 'meanfeed' ? C.totoBlock : C.toto1;
         if (p.variant !== 'default' || p.mode === 'lead_known' || p.mode === 'known_cov') return C.option;
         if (p.model.indexOf('timestral') === 0) return C.timestral;
         if (p.model === 'chronos-2') return C.chronos;
@@ -95,7 +97,7 @@
 
     function el(tag, attrs, parent) {
         var e = document.createElementNS(NS, tag);
-        for (var k in attrs) if (attrs.hasOwnProperty(k)) e.setAttribute(k, attrs[k]);
+        for (var k in attrs) if (attrs.hasOwnProperty(k) && attrs[k] !== null) e.setAttribute(k, attrs[k]);
         if (parent) parent.appendChild(e);
         return e;
     }
@@ -260,8 +262,10 @@
         el('path', { d: linePath(fx, s.future, sx, sy), fill: 'none', stroke: C.ink, 'stroke-width': 1.5,
                      'stroke-linejoin': 'round' }, g);
         below.forEach(function (k) {
+            var gen = parts(k).model === 'toto1' && parts(k).variant === 'default';   // generative: long dashes
             el('path', { d: linePath(fx, s.f[k].med, sx, sy), fill: 'none', stroke: colorOf(k), 'stroke-width': 2,
-                         'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, g);
+                         'stroke-linejoin': 'round', 'stroke-linecap': gen ? 'butt' : 'round',
+                         'stroke-dasharray': gen ? '8 3' : null }, g);
         });
 
         if (!o.mini) {
