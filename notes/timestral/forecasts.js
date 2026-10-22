@@ -183,7 +183,9 @@
         var cell = DATA[id], s = cell.series[si], step = cell.step || 1;
         var nShow = Math.min(o.ctx || s.context.length, s.context.length), off = s.context.length - nShow;
         var ctx = s.context.slice(off), nf = s.future.length;
-        var X0 = -(nShow - 1) * step, X1 = nf * step;
+        var X0 = -(nShow - 1) * step, X1 = nf * step, full = [X0, X1];
+        if (o.view) { X0 = Math.max(X0, o.view[0]); X1 = Math.min(X1, o.view[1]); }
+        var zoomed = X0 > full[0] || X1 < full[1];
         var W = Math.max(150, Math.round(holder.clientWidth || 600));
         var laneVals = o.lane && s.cov && s.cov[o.lane] ? s.cov[o.lane].slice(off) : null;
         var LT = o.mini ? 3 : 18, LH = laneVals ? (o.mini ? 18 : 46) : 0, LG = laneVals ? (o.mini ? 6 : 14) : 0;
@@ -192,9 +194,13 @@
         if (laneVals) P.t = LT + LH + LG;
         var oracle = s.f[o.oracle || 'oracle'];
         var shown = keys.filter(function (k) { return s.f[k]; });
-        var arrs = [ctx, s.future];
-        if (oracle) arrs.push(oracle.lo, oracle.hi);
-        if (o.fit === 'all') shown.forEach(function (k) { arrs.push(s.f[k].lo, s.f[k].hi); });
+        var cxs = xs(nShow, step, true), fxs = xs(nf, step, false);
+        var cut = function (x, a) {                 // values inside the visible range only, for the y axis
+            return zoomed ? a.map(function (v, i) { return x[i] >= X0 - step && x[i] <= X1 + step ? v : null; }) : a;
+        };
+        var arrs = [cut(cxs, ctx), cut(fxs, s.future)];
+        if (oracle) arrs.push(cut(fxs, oracle.lo), cut(fxs, oracle.hi));
+        if (o.fit === 'all' || zoomed) shown.forEach(function (k) { arrs.push(cut(fxs, s.f[k].lo), cut(fxs, s.f[k].hi)); });
         var yr = extent(arrs, o.zero);
         var pw = W - P.l - P.r, ph = H - P.t - P.b;
         var sx = function (x) { return P.l + pw * (x - X0) / (X1 - X0); };
@@ -210,7 +216,14 @@
                 el('line', { x1: P.l, x2: W - P.r, y1: y, y2: y, stroke: v === 0 && o.zero ? C.zero : C.rule }, svg);
                 txt(svg, P.l - 6, y + 4, t.fmt(v), { 'text-anchor': 'end', 'class': 'muted' });
             });
-            if (X1 > 1024) {                        // block ticks, labelled when there is room for them
+            if (zoomed) {                           // steps from now, on a nice grid
+                var xt = ticks(X0, X1, W < 500 ? 3 : 5);
+                xt.vals.forEach(function (v) {
+                    var tx = Math.round(sx(v)) + 0.5;
+                    if (v !== 0) el('line', { x1: tx, x2: tx, y1: P.t, y2: H - P.b, stroke: C.rule }, svg);
+                    if (v !== 0) txt(svg, tx, H - 7, (v > 0 ? '+' : '\u2212') + thousands(Math.abs(v)), { 'text-anchor': 'middle', 'class': 'muted' });
+                });
+            } else if (X1 > 1024) {                 // block ticks, labelled when there is room for them
                 for (var b = 1024; b < X1; b += 1024) {
                     var bx = Math.round(sx(b)) + 0.5;
                     el('line', { x1: bx, x2: bx, y1: P.t, y2: H - P.b, stroke: C.rule }, svg);
@@ -219,14 +232,14 @@
                     }
                 }
             }
-            txt(svg, W - P.r, H - 7, '+' + thousands(X1), { 'text-anchor': 'end', 'class': 'muted' });
+            if (!zoomed) txt(svg, W - P.r, H - 7, '+' + thousands(X1), { 'text-anchor': 'end', 'class': 'muted' });
         } else if (o.zero && yr[0] < 0 && yr[1] > 0) {
             el('line', { x1: P.l, x2: W - P.r, y1: sy(0), y2: sy(0), stroke: C.zero }, svg);
         }
         var nowX = Math.round(sx(step / 2)) + 0.5;
         el('line', { x1: nowX, x2: nowX, y1: P.t, y2: H - P.b, stroke: C.past, 'stroke-dasharray': o.mini ? 'none' : '2 3' }, svg);
-        if (!o.mini) txt(svg, nowX, H - 7, 'now', { 'text-anchor': 'middle', 'class': 'muted' });
-        if (o.rule && o.rule[0] < X1) {
+        if (!o.mini && nowX > P.l && nowX < W - P.r) txt(svg, nowX, H - 7, 'now', { 'text-anchor': 'middle', 'class': 'muted' });
+        if (o.rule && o.rule[0] < X1 && o.rule[0] > X0) {
             var rx = Math.round(sx(o.rule[0])) + 0.5;
             el('line', { x1: rx, x2: rx, y1: P.t, y2: H - P.b, stroke: C.muted, 'stroke-dasharray': o.mini ? '2 2' : '4 3' }, svg);
             if (!o.mini) txt(svg, rx + 5, P.t + 13, o.rule[1], { 'class': 'muted', 'paint-order': 'stroke', stroke: C.surface,
@@ -306,8 +319,40 @@
                 cross.setAttribute('x1', px); cross.setAttribute('x2', px); cross.setAttribute('visibility', 'visible');
                 showTip(ev, rows.join('<br>'));
             };
-            hit.addEventListener('pointermove', move);
-            hit.addEventListener('pointerdown', move);
+            // drag with a mouse to zoom on a stretch of time, double-click to go back
+            var brush = el('rect', { y: P.t, height: ph, fill: C.ink, 'fill-opacity': 0.06, stroke: C.muted,
+                                     'stroke-dasharray': '3 3', visibility: 'hidden', 'pointer-events': 'none' }, svg);
+            var toX = function (ev) {
+                var r = svg.getBoundingClientRect(), x = (ev.clientX - r.left) * W / r.width;
+                return Math.max(P.l, Math.min(W - P.r, x));
+            };
+            var drag = null;
+            hit.addEventListener('pointerdown', function (ev) {
+                if (ev.pointerType === 'mouse' && o.onZoom) { drag = toX(ev); hit.setPointerCapture(ev.pointerId); ev.preventDefault(); }
+                move(ev);
+            });
+            hit.addEventListener('pointermove', function (ev) {
+                move(ev);
+                if (drag === null) return;
+                var x = toX(ev);
+                brush.setAttribute('x', Math.min(drag, x)); brush.setAttribute('width', Math.abs(x - drag));
+                brush.setAttribute('visibility', 'visible');
+            });
+            hit.addEventListener('pointerup', function (ev) {
+                if (drag === null) return;
+                var a = drag, b = toX(ev); drag = null;
+                brush.setAttribute('visibility', 'hidden');
+                if (Math.abs(b - a) < 8) return;
+                var v0 = X0 + (Math.min(a, b) - P.l) / pw * (X1 - X0), v1 = X0 + (Math.max(a, b) - P.l) / pw * (X1 - X0);
+                var least = Math.max(8 * step, (full[1] - full[0]) / 12);   // not too far: at most 12 times
+                if (v1 - v0 < least) { var c = (v0 + v1) / 2; v0 = c - least / 2; v1 = c + least / 2; }
+                if (v0 < full[0]) { v1 += full[0] - v0; v0 = full[0]; }
+                if (v1 > full[1]) { v0 -= v1 - full[1]; v1 = full[1]; }
+                hideTip();
+                o.onZoom([Math.max(full[0], v0), v1]);
+            });
+            if (o.onZoom) hit.addEventListener('dblclick', function () { o.onZoom(null); });
+            if (o.onZoom) hit.style.cursor = 'crosshair';
             hit.addEventListener('pointerleave', function () {
                 cross.setAttribute('visibility', 'hidden');
                 dots.forEach(function (d) { d.setAttribute('visibility', 'hidden'); });
@@ -387,6 +432,8 @@
             plot(plotBox, id, st.series, keys, {
                 oracle: cfg.oracle, fit: cfg.fit, zero: cfg.zero, lane: cfg.lane, laneLabel: cfg.laneLabel,
                 rule: cfg.rule, height: cfg.height,
+                view: st.view && st.view.id === id ? st.view.r : null,
+                onZoom: function (r) { st.view = r ? { id: id, r: r } : null; render(); },
                 aria: taskName(id) + ': the end of the context, what happened, and the forecasts of '
                       + keys.map(nameOf).join(', ') + '.'
             });
@@ -397,6 +444,7 @@
                     chip(pager, String(i + 1), i === st.series, false, null, function () { st.series = i; render(); });
                 });
             }
+            if (st.view && st.view.id === id) chip(pager, 'reset zoom', false, false, null, function () { st.view = null; render(); });
             legendBox.innerHTML = '';
             keys.filter(function (k) { return s.f[k]; }).forEach(function (k) { key(legendBox, 'model', colorOf(k), nameOf(k)); });
             key(legendBox, 'line', C.past, 'past');
