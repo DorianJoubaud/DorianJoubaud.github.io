@@ -148,8 +148,9 @@
 
     <h2 id="lines">Lines: Timestral is sure of them</h2>
     <p>
-        Timestral standardises each patch with the mean and spread of everything before it. In that frame a line looks
-        flat, whatever its slope, which may be why lines come easy to it. We did not test this. With 128 steps of
+        Timestral standardises each patch with the mean and spread of the series up to the end of that patch. In that
+        frame, every rising line gives the network the same values whatever its slope, and extending it means holding
+        the same level, which may be why lines come easy to it. We did not test this. With 128 steps of
         history, Chronos-2's median keeps the line too, but its band is twelve times wider than Timestral's and sags
         toward the past.
     </p>
@@ -386,8 +387,8 @@
         <ul>
             <li>Timestral runs as shipped, with each of its two test-time options turned off
                 (<code>symmetric_averaging</code>, <code>clip_nonnegative</code>), on the logarithm of positive series,
-                and through quantile paths. Chronos-2, TimesFM 2.5, Toto 2.0 and Toto 1.0 run with their recommended
-                settings, next to a least-squares line, our ruler, and AutoETS and AutoARIMA.</li>
+                and through quantile paths. Chronos-2 and TimesFM 2.5 run with their recommended settings, Toto 2.0 and
+                Toto 1.0 with their defaults, next to a least-squares line, our ruler, and AutoETS and AutoARIMA.</li>
             <li>Timestral 1.0.0 (inference code at <code>a534bdb</code>), weights at their Hugging Face revisions of
                 15 October 2026. Chronos-2 through chronos-forecasting 2.3.2, TimesFM 2.5 through timesfm 3.0.2.
                 Chronos-2's quantiles can cross, so they are sorted, which never increases the loss. AutoETS and
