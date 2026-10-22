@@ -195,7 +195,7 @@
 }
 .viewer__tip .swatch { vertical-align: -1px; }
 
-/* ---------- Cards: the six findings, the oracle, every task ---------- */
+/* ---------- Cards: the seven findings, the oracle, every task ---------- */
 
 .cards {
     display: grid;
@@ -254,7 +254,7 @@ button.card { cursor: pointer; width: 100%; }
     .fig__frame { padding: 0.75rem 0.7rem 0.65rem; }
 }
 
-/* the six cards keep their plots on one line when a title wraps */
+/* the seven cards keep their plots on one line when a title wraps */
 @media (min-width: 640px) {
     .cards:not(.cards--two) .card__title { min-height: 2.6em; }
 }
@@ -271,3 +271,18 @@ button.card { cursor: pointer; width: 100%; }
     .fc__table th, .fc__table td { padding: 0.15rem 0.25rem; }
     .fc__table td:first-child { white-space: normal; min-width: 6.5rem; }
 }
+
+/* ---------- In short: the message of the note, before the cards ---------- */
+
+.tldr {
+    margin: 0 0 2rem;
+    padding: 0.85rem 1.1rem 0.35rem;
+    border: 1px solid var(--color-rule);
+    border-left: 3px solid var(--color-accent);
+    border-radius: var(--radius);
+    background: var(--color-surface);
+}
+.note .tldr__title { margin: 0 0 0.45rem; font-weight: 600; }
+.note .tldr ul { margin: 0 0 0.5rem; padding-left: 1.1rem; }
+.note .tldr li { margin: 0 0 0.5rem; line-height: 1.5; }
+.fig details { overflow-x: auto; }
