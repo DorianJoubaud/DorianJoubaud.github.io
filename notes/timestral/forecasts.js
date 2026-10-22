@@ -248,8 +248,13 @@
 
         var g = el('g', { 'clip-path': 'url(#' + cid + ')' }, svg);
         var fx = xs(nf, step, false), cx = xs(nShow, step, true), below = shown.slice().reverse();
+        var many = shown.length > 1;                // several bands: lighter fills, each outlined in its colour
         below.forEach(function (k) {
-            el('path', { d: bandPath(fx, s.f[k].lo, s.f[k].hi, sx, sy), fill: colorOf(k), 'fill-opacity': 0.17 }, g);
+            el('path', { d: bandPath(fx, s.f[k].lo, s.f[k].hi, sx, sy), fill: colorOf(k), 'fill-opacity': many ? 0.07 : 0.17 }, g);
+            if (many && !o.mini) ['lo', 'hi'].forEach(function (q) {
+                el('path', { d: linePath(fx, s.f[k][q], sx, sy), fill: 'none', stroke: colorOf(k), 'stroke-width': 1,
+                             'stroke-opacity': 0.6, 'stroke-linejoin': 'round' }, g);
+            });
         });
         if (oracle) {
             ['lo', 'hi'].forEach(function (q) {
@@ -344,7 +349,7 @@
         var st = { cell: Math.min(cfg.start || 0, cells.length - 1), series: 0, on: (cfg.on || []).slice() };
         var bar = html('div', 'fc__bar', box), plotBox = html('div', 'fc__plot', box);
         var foot = html('div', 'fc__foot', box), legendBox = html('div', 'viewer__legend', foot);
-        var pager = html('div', 'fc__group fc__group--series', foot), sum = html('p', 'fc__sum', box);
+        var pager = html('div', 'fc__group fc__group--series', foot), sum = html('div', 'fc__sum', box);
         var fig = { box: box, w: 0 };
 
         function current() { return cells[st.cell][0]; }
@@ -402,33 +407,35 @@
             fig.w = plotBox.clientWidth;
         }
         function summary(id, keys) {
-            var cell = DATA[id], items = [];
-            keys.forEach(function (k) {
+            var cell = DATA[id], alone = cfg.summary === 'alone';
+            var blocks = cfg.blocks && cell.blocks, under = cfg.under && cell.u;
+            var rows = keys.map(function (k) {
                 var v = null;
-                if (cfg.summary === 'alone') {
+                if (alone) {
                     var base = parts(k).base;
                     if (k !== base && cell.sql[k] !== null && cell.sql[base]) v = cell.sql[k] / cell.sql[base];
                 } else v = cell.r[k];
-                if (v !== null && v !== undefined) items.push(nameOf(k) + ' <b>' + times(v) + '</b>');
-            });
-            var head = cfg.summary === 'alone' ? 'Error with the covariate divided by the error without it, over the '
-                : 'Error relative to the best possible, over the ';
-            var out = items.length ? head + cell.n + ' series of this task: ' + items.join(' · ') + '.' : '';
-            if (cfg.blocks && cell.blocks) {
-                var bl = keys.concat(['oracle']).filter(function (k) { return cell.blocks[k]; }).map(function (k) {
-                    return (k === 'oracle' ? 'best possible' : nameOf(k)) + ' <b>' + cell.blocks[k].map(function (v) {
-                        return Math.round(100 * v);
-                    }).join(' \u00b7 ') + '&nbsp;%</b>';
-                });
-                if (bl.length) out += '<br>Share of the truth inside the 80&nbsp;% band, block by block of 1&nbsp;024 steps: '
-                    + bl.join(', ') + '.';
+                return { k: k, name: nameOf(k), color: colorOf(k), v: v,
+                         b: blocks ? cell.blocks[k] : null, u: under ? cell.u[k] : null };
+            }).filter(function (r) { return r.v !== null && r.v !== undefined || r.b; });
+            if (!rows.length) { sum.innerHTML = ''; return; }
+            if (blocks && cell.blocks.oracle) rows.push({ name: 'best possible', v: alone ? null : 1, b: cell.blocks.oracle });
+            var nb = blocks ? cell.blocks.oracle.length : 0;
+            var top = '', head = '<th></th><th>' + (alone ? 'error with / without' : 'error / best possible') + '</th>';
+            if (nb) {
+                top = '<tr><th></th><th></th><th colspan="' + nb + '" class="fc__group-h">% of the truth inside the 80&nbsp;% band, by block of 1&nbsp;024 steps</th></tr>';
+                for (var i = 0; i < nb; i++) head += '<th>' + (i + 1) + (i ? '' : 'st') + (i === 1 ? 'nd' : i === 2 ? 'rd' : i > 2 ? 'th' : '') + '</th>';
             }
-            if (cfg.under) {
-                var under = keys.filter(function (k) { return cell.u[k] !== null && cell.u[k] !== undefined; })
-                    .map(function (k) { return nameOf(k) + ' <b>' + Math.round(100 * cell.u[k]) + '&nbsp;%</b>'; });
-                if (under.length) out += '<br>Median below the truth at the last step: ' + under.join(' · ') + '.';
-            }
-            sum.innerHTML = out;
+            if (under) head += '<th>median below the truth, last step</th>';
+            var body = rows.map(function (r) {
+                var tr = '<td>' + (r.color ? '<span class="swatch" style="background:' + r.color + '"></span>' : '') + r.name + '</td>'
+                    + '<td>' + (r.v === null || r.v === undefined ? '' : times(r.v)) + '</td>';
+                for (var i = 0; i < nb; i++) tr += '<td>' + (r.b ? Math.round(100 * r.b[i]) : '') + '</td>';
+                if (under) tr += '<td>' + (r.u === null || r.u === undefined ? '' : Math.round(100 * r.u) + '&nbsp;%') + '</td>';
+                return '<tr>' + tr + '</tr>';
+            }).join('');
+            sum.innerHTML = '<table class="fc__table">' + top + '<tr>' + head + '</tr>' + body + '</table>'
+                + '<span class="fc__note">Over the ' + cell.n + ' series of this task.</span>';
         }
         fig.render = render;
         fig.setCell = function (id) {

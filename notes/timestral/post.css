@@ -258,3 +258,16 @@ button.card { cursor: pointer; width: 100%; }
 @media (min-width: 640px) {
     .cards:not(.cards--two) .card__title { min-height: 2.6em; }
 }
+.fc__table { border-collapse: collapse; margin: 0.25rem 0 0.35rem; font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+.fc__table th { font-weight: 500; color: var(--color-muted); text-align: right; padding: 0.15rem 0.6rem; line-height: 1.25; vertical-align: bottom; }
+.fc__table td { text-align: right; padding: 0.15rem 0.6rem; color: var(--color-text); border-top: 1px solid #ececea; white-space: nowrap; }
+.fc__table td:first-child, .fc__table th:first-child { text-align: left; padding-left: 0; }
+.fc__table .swatch { display: inline-block; width: 0.6rem; height: 0.6rem; border-radius: 2px; margin-right: 0.4rem; vertical-align: baseline; }
+.fc__sum { overflow-x: auto; }
+.fc__note { display: block; font-size: 0.75rem; }
+.fc__table .fc__group-h { text-align: center; border-bottom: 1px solid #ececea; }
+@media (max-width: 560px) {
+    .fc__table { font-size: 0.7rem; }
+    .fc__table th, .fc__table td { padding: 0.15rem 0.25rem; }
+    .fc__table td:first-child { white-space: normal; min-width: 6.5rem; }
+}
