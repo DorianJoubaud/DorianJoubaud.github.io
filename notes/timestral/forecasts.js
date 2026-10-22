@@ -223,11 +223,12 @@
                     if (v !== 0) el('line', { x1: tx, x2: tx, y1: P.t, y2: H - P.b, stroke: C.rule }, svg);
                     if (v !== 0) txt(svg, tx, H - 7, (v > 0 ? '+' : '\u2212') + thousands(Math.abs(v)), { 'text-anchor': 'middle', 'class': 'muted' });
                 });
-            } else if (X1 > 1024) {                 // block ticks, labelled when there is room for them
-                for (var b = 1024; b < X1; b += 1024) {
+            } else if (X1 > (o.every || 1024)) {    // block ticks, labelled when there is room for them
+                var blk = o.every || 1024;
+                for (var b = blk; b < X1; b += blk) {
                     var bx = Math.round(sx(b)) + 0.5;
                     el('line', { x1: bx, x2: bx, y1: P.t, y2: H - P.b, stroke: C.rule }, svg);
-                    if (pw * 1024 / (X1 - X0) > 70) {
+                    if (pw * blk / (X1 - X0) > 70 && W - P.r - bx > 50) {
                         txt(svg, bx, H - 7, '+' + thousands(b), { 'text-anchor': 'middle', 'class': 'muted' });
                     }
                 }
@@ -239,11 +240,18 @@
         var nowX = Math.round(sx(step / 2)) + 0.5;
         el('line', { x1: nowX, x2: nowX, y1: P.t, y2: H - P.b, stroke: C.past, 'stroke-dasharray': o.mini ? 'none' : '2 3' }, svg);
         if (!o.mini && nowX > P.l && nowX < W - P.r) txt(svg, nowX, H - 7, 'now', { 'text-anchor': 'middle', 'class': 'muted' });
-        if (o.rule && o.rule[0] < X1 && o.rule[0] > X0) {
-            var rx = Math.round(sx(o.rule[0])) + 0.5;
-            el('line', { x1: rx, x2: rx, y1: P.t, y2: H - P.b, stroke: C.muted, 'stroke-dasharray': o.mini ? '2 2' : '4 3' }, svg);
-            if (!o.mini) txt(svg, rx + 5, P.t + 13, o.rule[1], { 'class': 'muted', 'paint-order': 'stroke', stroke: C.surface,
-                                                                 'stroke-width': 3 });
+        if (o.rule) {                               // dashed: where the model feeds back, labelled once
+            var at = [o.rule[0]], named = false;
+            if (o.every) for (var rv = o.rule[0] + o.every; rv < X1; rv += o.every) at.push(rv);
+            at.forEach(function (v) {
+                if (v >= X1 || v <= X0) return;
+                var rx = Math.round(sx(v)) + 0.5;
+                el('line', { x1: rx, x2: rx, y1: P.t, y2: H - P.b, stroke: C.muted, 'stroke-dasharray': o.mini ? '2 2' : '4 3' }, svg);
+                if (!o.mini && !named && o.rule[1]) {
+                    txt(svg, rx + 5, P.t + 13, o.rule[1], { 'class': 'muted', 'paint-order': 'stroke', stroke: C.surface, 'stroke-width': 3 });
+                    named = true;
+                }
+            });
         }
 
         if (laneVals) {
@@ -392,6 +400,9 @@
         if (!cells.length) return;
         var choices = (cfg.choices || []).map(function (c) { return typeof c === 'string' ? [c] : c; });
         var st = { cell: Math.min(cfg.start || 0, cells.length - 1), series: 0, on: (cfg.on || []).slice() };
+        var LABEL = {};
+        choices.forEach(function (c) { if (c[2] && MODEL[parts(c[0]).model] && c[2].indexOf(MODEL[parts(c[0]).model]) === 0) LABEL[c[0]] = c[2]; });
+        function labelOf(k) { return LABEL[k] || nameOf(k); }
         var bar = html('div', 'fc__bar', box), plotBox = html('div', 'fc__plot', box);
         var foot = html('div', 'fc__foot', box), legendBox = html('div', 'viewer__legend', foot);
         var pager = html('div', 'fc__group fc__group--series', foot), sum = html('div', 'fc__sum', box);
@@ -431,7 +442,7 @@
             }) : st.on;
             plot(plotBox, id, st.series, keys, {
                 oracle: cfg.oracle, fit: cfg.fit, zero: cfg.zero, lane: cfg.lane, laneLabel: cfg.laneLabel,
-                rule: cfg.rule, height: cfg.height,
+                rule: cfg.rule, every: cfg.every, height: cfg.height,
                 view: st.view && st.view.id === id ? st.view.r : null,
                 onZoom: function (r) { st.view = r ? { id: id, r: r } : null; render(); },
                 aria: taskName(id) + ': the end of the context, what happened, and the forecasts of '
@@ -446,7 +457,7 @@
             }
             if (st.view && st.view.id === id) chip(pager, 'reset zoom', false, false, null, function () { st.view = null; render(); });
             legendBox.innerHTML = '';
-            keys.filter(function (k) { return s.f[k]; }).forEach(function (k) { key(legendBox, 'model', colorOf(k), nameOf(k)); });
+            keys.filter(function (k) { return s.f[k]; }).forEach(function (k) { key(legendBox, 'model', colorOf(k), labelOf(k)); });
             key(legendBox, 'line', C.past, 'past');
             key(legendBox, 'line', C.ink, 'what happened');
             if (s.f[cfg.oracle || 'oracle']) key(legendBox, 'dash', null, cfg.oracleLabel || 'best possible 80 % band');
@@ -456,23 +467,38 @@
         }
         function summary(id, keys) {
             var cell = DATA[id], alone = cfg.summary === 'alone';
-            var blocks = cfg.blocks && cell.blocks, under = cfg.under && cell.u;
+            var under = cfg.under && cell.u, segs = null, segName = [], segHead = '';
+            if (cfg.split && cell.cov64) {
+                var n0 = cfg.split / 64;
+                segs = function (k) {
+                    var c = cell.cov64[k], a = 0, b = 0;
+                    if (!c) return null;
+                    for (var i = 0; i < c.length; i++) { if (i < n0) a += c[i]; else b += c[i]; }
+                    return [a / n0, b / (c.length - n0)];
+                };
+                segName = ['steps 1 to ' + thousands(cfg.split), 'steps ' + thousands(cfg.split + 1) + ' to ' + thousands(cell.H)];
+                segHead = '% of the truth inside the 80&nbsp;% band';
+            } else if (cfg.blocks && cell.blocks) {
+                segs = function (k) { return cell.blocks[k] || null; };
+                segName = cell.blocks.oracle.map(function (_, i) { return (i + 1) + ['st', 'nd', 'rd'].concat(['th'])[Math.min(i, 3)]; });
+                segHead = '% of the truth inside the 80&nbsp;% band, by block of 1&nbsp;024 steps';
+            }
             var rows = keys.map(function (k) {
                 var v = null;
                 if (alone) {
                     var base = parts(k).base;
                     if (k !== base && cell.sql[k] !== null && cell.sql[base]) v = cell.sql[k] / cell.sql[base];
                 } else v = cell.r[k];
-                return { k: k, name: nameOf(k), color: colorOf(k), v: v,
-                         b: blocks ? cell.blocks[k] : null, u: under ? cell.u[k] : null };
+                return { k: k, name: labelOf(k), color: colorOf(k), v: v,
+                         b: segs ? segs(k) : null, u: under ? cell.u[k] : null };
             }).filter(function (r) { return r.v !== null && r.v !== undefined || r.b; });
             if (!rows.length) { sum.innerHTML = ''; return; }
-            if (blocks && cell.blocks.oracle) rows.push({ name: 'best possible', v: alone ? null : 1, b: cell.blocks.oracle });
-            var nb = blocks ? cell.blocks.oracle.length : 0;
+            if (segs && segs('oracle')) rows.push({ name: 'best possible', v: alone ? null : 1, b: segs('oracle') });
+            var nb = segs ? segName.length : 0;
             var top = '', head = '<th></th><th>' + (alone ? 'error with / without' : 'error / best possible') + '</th>';
             if (nb) {
-                top = '<tr><th></th><th></th><th colspan="' + nb + '" class="fc__group-h">% of the truth inside the 80&nbsp;% band, by block of 1&nbsp;024 steps</th></tr>';
-                for (var i = 0; i < nb; i++) head += '<th>' + (i + 1) + (i ? '' : 'st') + (i === 1 ? 'nd' : i === 2 ? 'rd' : i > 2 ? 'th' : '') + '</th>';
+                top = '<tr><th></th><th></th><th colspan="' + nb + '" class="fc__group-h">' + segHead + '</th></tr>';
+                for (var i = 0; i < nb; i++) head += '<th>' + segName[i] + '</th>';
             }
             if (under) head += '<th>median below the truth, last step</th>';
             var body = rows.map(function (r) {

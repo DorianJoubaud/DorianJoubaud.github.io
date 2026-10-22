@@ -214,9 +214,10 @@
     <figure class="fig">
         <div class="fig__frame fc" data-fc='{"cells":[["E3__rw__C4096_H4096_n0","random walk"],["E3__linear_up__C4096_H4096_n0.01","line"]],
             "choices":["timestral-209m","chronos-2",["timesfm-2.5/basehead",null,"TimesFM 2.5"],"linreg"],
-            "on":["timestral-209m","chronos-2"],"rule":[1024,"one decoded block"],"blocks":true}'></div>
-        <figcaption>4&nbsp;096 steps ahead from 4&nbsp;096 of history. The plot shows the last 1&nbsp;024 steps of
-            history, and every fourth step. TimesFM 2.5 runs with its base quantile head, the only one that goes beyond
+            "on":["timestral-209m","chronos-2"],"rule":[1024,"median fed back"],"every":1024,"blocks":true}'></div>
+        <figcaption>At each dashed line, Timestral appends the median of the block before to the context. 4&nbsp;096
+            steps ahead from 4&nbsp;096 of history. The plot shows the last 1&nbsp;024 steps of history, and every
+            fourth step. TimesFM 2.5 runs with its base quantile head, the only one that goes beyond
             1&nbsp;024 steps.</figcaption>
     </figure>
     <p>
@@ -231,17 +232,19 @@
     <p>
         Toto 2.0 settles it. The same weights can forecast a long horizon in one pass, or by blocks of 768 steps with the
         median fed back between blocks, which its README recommends beyond about 1&nbsp;000 steps. Only the decoding
-        changes. In one pass, Toto 2.0 2.5B covers 76&nbsp;% of a random walk over the first 768 steps and still
-        58&nbsp;% over the last 1&nbsp;024. Fed back, its band shrinks from 0.99 to 0.004 times the width of the best
-        possible one between steps 768 and 769, and its coverage falls from 73&nbsp;% to 0. Its four smaller sizes do
-        the same.
+        changes, and over the first 768 steps both give the same forecast. Then, fed back, the band of Toto 2.0 2.5B
+        shrinks from 0.99 to 0.004 times the width of the best possible one between steps 768 and 769. It widens again
+        within each block, but never as far as the best possible one: beyond step 768, it covers 14&nbsp;% of a
+        random walk, against 63&nbsp;% in one pass. Its four smaller sizes do the same.
     </p>
     <figure class="fig">
         <div class="fig__frame fc" data-fc='{"cells":[["E3__rw__C4096_H4096_n0","random walk"],["E3__linear_up__C4096_H4096_n0.01","line"]],
             "choices":[["toto2-2.5b",null,"Toto 2.0 2.5B, one pass"],["toto2-2.5b/block768",null,"Toto 2.0 2.5B, median fed back"],"chronos-2"],
-            "on":["toto2-2.5b","toto2-2.5b/block768"],"rule":[768,"first fed-back block"],"blocks":true}'></div>
-        <figcaption>The same model and the same series, decoded two ways. 4&nbsp;096 steps ahead from 4&nbsp;096 of
-            history, every fourth step shown.</figcaption>
+            "on":["toto2-2.5b","toto2-2.5b/block768"],"rule":[768,"median fed back"],"every":768,"split":768}'></div>
+        <figcaption>The same model and the same series, decoded two ways. Up to step 768 both give the same
+            forecast, so their bands coincide. At each dashed line, the median of the block before is fed back: the
+            pink band starts again from almost nothing. 4&nbsp;096 steps ahead from 4&nbsp;096 of history, every fourth
+            step shown.</figcaption>
     </figure>
     <p>
         Feeding back the median is not all loss: it holds the median better far out. On a sine of period 24,
@@ -255,7 +258,7 @@
     <figure class="fig">
         <div class="fig__frame fc" data-fc='{"cells":[["E3__rw__C4096_H4096_n0","random walk"]],
             "choices":[["toto1",null,"Toto 1.0, 256 sampled paths"],["toto1/meanfeed",null,"Toto 1.0, mean fed back"],"chronos-2"],
-            "on":["toto1","toto1/meanfeed"],"rule":[64,"first fed-back patch"],"blocks":true}'></div>
+            "on":["toto1","toto1/meanfeed"],"rule":[64,"first fed-back patch"],"split":64}'></div>
         <figcaption>The same generative model decoded two ways. Its median is dashed: it is read off 256 paths and
             carries their sampling noise. Fed its mean, Toto 1.0 loses its band on every series, and on a quarter of
             them, as on the first here, its median also drifts away.</figcaption>
@@ -285,8 +288,9 @@
         <div class="fig__frame fc" data-fc='{"cells":[["E3__rw__C4096_H4096_n0","random walk"],["E3__ar1_09__C4096_H4096_n0","AR(1)"],["E3__linear_up__C4096_H4096_n0.01","line"],["E3__sine_p24__C4096_H4096_n0.01","sine"]],
             "choices":[["timestral-209m",null,"Timestral 209M, as shipped"],["timestral-209m/qpaths","opt","Timestral 209M, quantile paths"],"chronos-2",
                        ["toto2-2.5b/qpaths","opt","Toto 2.0 2.5B, quantile paths"]],
-            "on":["timestral-209m","timestral-209m/qpaths"],"rule":[1024,"first block with paths"],"blocks":true}'></div>
-        <figcaption>The same weights, decoded as shipped and through quantile paths. 4&nbsp;096 steps ahead from
+            "on":["timestral-209m","timestral-209m/qpaths"],"rule":[1024,"new block"],"every":1024,"blocks":true}'></div>
+        <figcaption>The same weights, decoded as shipped and through quantile paths. At each dashed line, the first
+            feeds back the median of the block before, the second its nine deciles. 4&nbsp;096 steps ahead from
             4&nbsp;096 of history, every fourth step shown.</figcaption>
     </figure>
     <p>It improves, it does not cure.</p>
