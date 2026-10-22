@@ -127,7 +127,7 @@
     </p>
     <figure class="fig">
         <div class="fig__frame fc" data-fc='{"cells":[["E2__linear_up__C128_H96_n0.01","128 steps of history"],["E1__linear_up__C512_H96_n0.01","512 steps"]],
-            "choices":["timestral-209m","chronos-2","timesfm-2.5","linreg"],"on":["timestral-209m","chronos-2"]}'></div>
+            "choices":["timestral-209m","chronos-2","timesfm-2.5","toto2-2.5b","linreg"],"on":["timestral-209m","chronos-2"]}'></div>
         <figcaption>The first three series of each task, not picked. The models read the whole history, the plot shows
             its last 192 steps at most. Hover or touch the plot for the values.</figcaption>
     </figure>
@@ -140,7 +140,7 @@
     </p>
     <figure class="fig">
         <div class="fig__frame fc" data-fc='{"cells":[["E1__linear_cross__C512_H96_n0.01","falls through zero"],["E1__linear_cross_up__C512_H96_n0.01","mirror image"]],
-            "choices":["timestral-209m",["timestral-209m/noclip","opt","clip off"],"timesfm-2.5","chronos-2"],"on":["timestral-209m","timestral-209m/noclip"],"zero":true}'></div>
+            "choices":["timestral-209m",["timestral-209m/noclip","opt","clip off"],"timesfm-2.5","chronos-2","toto2-2.5b"],"on":["timestral-209m","timestral-209m/noclip"],"zero":true}'></div>
     </figure>
 
     <h2 id="exp">Exponentials: forecast the logarithm</h2>
@@ -153,7 +153,7 @@
     <figure class="fig">
         <div class="fig__frame fc" data-fc='{"cells":[["E1__exp_k1__C512_H96_n0.01","e¹"],["E1__exp_k3__C512_H96_n0.01","e³"],["E1__exp_k5__C512_H96_n0.01","e⁵"],["E1__exp_k10__C512_H96_n0.01","e¹⁰"]],
             "start":3,"under":true,
-            "choices":["timestral-209m",["timestral-209m/log","opt","on log x"],"chronos-2","timesfm-2.5"],"on":["timestral-209m","timestral-209m/log"]}'></div>
+            "choices":["timestral-209m",["timestral-209m/log","opt","on log x"],"chronos-2","timesfm-2.5","toto2-2.5b"],"on":["timestral-209m","timestral-209m/log"]}'></div>
         <figcaption>Growth over the 512 steps of context, with 1&nbsp;% multiplicative noise.</figcaption>
     </figure>
 
@@ -165,7 +165,7 @@
     </p>
     <figure class="fig">
         <div class="fig__frame fc" data-fc='{"cells":[["E3__rw__C4096_H4096_n0","random walk"],["E3__linear_up__C4096_H4096_n0.01","line"]],
-            "choices":["timestral-209m","chronos-2",["timesfm-2.5/basehead",null,"TimesFM 2.5"],"linreg"],
+            "choices":["timestral-209m","chronos-2",["timesfm-2.5/basehead",null,"TimesFM 2.5"],["toto2-2.5b/block768",null,"Toto 2.0, median fed back"],"linreg"],
             "on":["timestral-209m","chronos-2","timesfm-2.5/basehead"],"rule":[1024,"one decoded block"],"blocks":true}'></div>
         <figcaption>4&nbsp;096 steps ahead from 4&nbsp;096 of history. The plot shows the last 1&nbsp;024 steps of
             history, and every fourth step. TimesFM 2.5 runs with its base quantile head, the only one that goes beyond
