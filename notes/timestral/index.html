@@ -199,15 +199,8 @@
 
     <h2 id="horizon">Long horizons: what is fed back decides the band</h2>
     <p>
-        Timestral forecasts 1&nbsp;024 steps in one pass. Further out it goes block by block, like most models, and
-        feeds something back between blocks. In four steps: what we saw, its cause, an idea from Chronos-2, and a fix
-        for Timestral.
-    </p>
-
-    <h3 id="collapse">1. The band collapses after one block</h3>
-    <p>
-        Beyond its first block, Timestral appends that block's median to the context and goes on. A median is smooth,
-        so the model then sees a calm recent past, and its band narrows: it covers 79&nbsp;% of a random walk over the
+        Timestral forecasts 1&nbsp;024 steps in one pass. Further out, it appends that block's median to the context
+        and goes on. A median is smooth, so the model then sees a calm recent past, and its band narrows: it covers 79&nbsp;% of a random walk over the
         first block, 17&nbsp;% over the second, 2&nbsp;% over the last. Chronos-2 also decodes by blocks of
         1&nbsp;024 steps, and keeps its band.
     </p>
@@ -228,9 +221,9 @@
         within it: their medians end above and below the truth on every series.
     </p>
 
-    <h3 id="toto">2. The cause: a single value fed back</h3>
+    <h3 id="toto">Why: a single value fed back</h3>
     <p>
-        Toto 2.0 settles it. The same weights can forecast a long horizon in one pass, or by blocks of 768 steps with the
+        Toto 2.0 shows it on fixed weights. The same weights can forecast a long horizon in one pass, or by blocks of 768 steps with the
         median fed back between blocks, which its README recommends beyond about 1&nbsp;000 steps. Only the decoding
         changes, and over the first 768 steps both give the same forecast. Then, fed back, the band of Toto 2.0 2.5B
         shrinks from 0.99 to 0.004 times the width of the best possible one between steps 768 and 769. It widens again
@@ -267,20 +260,18 @@
         In every model we tried, a single central value fed back collapses the band.
     </p>
 
-    <h3 id="paths">3. The idea: roll out quantile paths</h3>
+    <h3 id="fix">A fix without retraining</h3>
     <p>
-        Chronos-2 decodes by blocks too, but feeds back nine values, not one. After the first block, it makes nine
+        Chronos-2 keeps its band because it feeds back nine values, not one. After the first block, it makes nine
         copies of the context and appends a different decile of the block to each. It forecasts the next block from
         each copy, pools the nine forecasts into one set of quantiles, and goes on. Its code calls this a better
         heuristic "than just using the median to unroll, which leads to uncertainty collapse"
         (<a href="https://github.com/amazon-science/chronos-forecasting" target="_blank" rel="noopener">chronos-forecasting</a>,
-        <code>_autoregressive_unroll_for_long_horizon</code>). Only the decoder does it: the network is the same.
+        <code>_autoregressive_unroll_for_long_horizon</code>).
     </p>
-
-    <h3 id="fix">4. Our fix: quantile paths on Timestral</h3>
     <p>
-        Since the collapse sits in the decoder, it should be fixable without touching the weights. We ported the
-        Chronos-2 rollout and ran Timestral 209M through it, with blocks of 1&nbsp;024 steps as shipped. Within the
+        Only the decoder does it, so another model can use it without touching its weights. We ported it and ran
+        Timestral 209M through it, with blocks of 1&nbsp;024 steps as shipped. Within the
         first block nothing changes. Beyond, the band holds: 73&nbsp;%, 65&nbsp;% and 57&nbsp;% over the last three
         blocks of the random walk, against 17, 7 and 2&nbsp;% as shipped.
     </p>
