@@ -13,8 +13,20 @@
    "value": 1.7883
   },
   {
+   "model": "toto2-2.5b",
+   "value": 1.7982
+  },
+  {
    "model": "chronos-2",
    "value": 1.856
+  },
+  {
+   "model": "toto2-1b",
+   "value": 1.9448
+  },
+  {
+   "model": "toto2-313m",
+   "value": 1.9588
   },
   {
    "model": "timestral-5m",
@@ -23,6 +35,14 @@
   {
    "model": "timesfm-2.5",
    "value": 2.0204
+  },
+  {
+   "model": "toto2-22m",
+   "value": 2.1828
+  },
+  {
+   "model": "toto2-4m",
+   "value": 2.6738
   },
   {
    "model": "autoarima",

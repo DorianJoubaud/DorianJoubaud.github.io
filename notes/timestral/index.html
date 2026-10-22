@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Timestral with a ruler | Dorian Joubaud</title>
-    <meta name="description" content="Mistral AI's Timestral forecasting models, all four sizes, tested on series a person could forecast by hand, against the best forecast possible.">
+    <meta name="description" content="Mistral AI's Timestral forecasting models, all four sizes, with Chronos-2, TimesFM 2.5 and Toto 2.0, tested on series a person could forecast by hand, against the best forecast possible.">
     <meta name="author" content="Dorian Joubaud">
 
     <link rel="icon" type="image/png" sizes="32x32" href="../../favicon-32x32.png">
@@ -35,7 +35,7 @@
         Mistral AI's new forecasting models, all four sizes, on series a person could forecast by hand,
         scored against the best forecast possible.
     </p>
-    <p class="note__meta">Dorian Joubaud</p>
+    <p class="note__meta">Dorian Joubaud · updated 22 October: Toto 2.0 added, and a test of the decoding on its weights</p>
 
     <p class="cards__lede">Six things we saw, each on one of the series we drew.</p>
     <div class="viewer__legend cards__legend">
@@ -114,7 +114,8 @@
     </figure>
     <p>
         Timestral 209M beats Chronos-2 on 53 of the 76 tasks and TimesFM 2.5 on 58. Timestral 28M, a quarter of
-        Chronos-2's size, is on par with it.
+        Chronos-2's size, is on par with it. Toto 2.0, added later, comes next at its largest size: 2.5B beats
+        Chronos-2 on 49 tasks and Timestral 209M on 26, and each of its sizes does better than the one below.
     </p>
 
     <h2 id="lines">Lines: Timestral is sure of them</h2>
@@ -156,10 +157,11 @@
         <figcaption>Growth over the 512 steps of context, with 1&nbsp;% multiplicative noise.</figcaption>
     </figure>
 
-    <h2 id="horizon">After 1&nbsp;024 steps, the band collapses</h2>
+    <h2 id="horizon">Feeding the median back collapses the band</h2>
     <p>
         Timestral forecasts 1&nbsp;024 steps in one pass. Beyond, it appends that block's median to the context and goes on.
-        A median is smooth, so the model then sees a calm recent past, and its band narrows. That is our reading, not a test.
+        A median is smooth, so the model then sees a calm recent past, and its band narrows: it covers 79&nbsp;% of a
+        random walk over the first block, 17&nbsp;% over the second, 2&nbsp;% over the last.
     </p>
     <figure class="fig">
         <div class="fig__frame fc" data-fc='{"cells":[["E3__rw__C4096_H4096_n0","random walk"],["E3__linear_up__C4096_H4096_n0.01","line"]],
@@ -172,9 +174,32 @@
     <p>
         TimesFM 2.5 shows the same thing, sooner. Its recommended quantile head stops at 1&nbsp;024 steps, and beyond, its
         base head feeds the median back every 128 steps. Its band then collapses at step 129: it covers 79&nbsp;% of a
-        random walk over the first 128 steps, 3&nbsp;% over the rest of the first block, and almost none after. Chronos-2, which rolls out from quantile paths, keeps
-        its band. Both models that feed back a median lose their band at their first fed-back step, which points to the
-        decoding rather than the network, though we tried no other decoder.
+        random walk over the first 128 steps, 3&nbsp;% over the rest of the first block, and almost none after.
+        Chronos-2 also decodes by blocks of 1&nbsp;024 steps, but it rolls out nine quantile paths instead of the median,
+        which its code calls a better heuristic "than just using the median to unroll, which leads to uncertainty
+        collapse". It keeps its band.
+    </p>
+
+    <h3 id="toto">Same weights, two decoders</h3>
+    <p>
+        Toto 2.0, from Datadog, settles it. The same weights can forecast a long horizon in one pass, or by blocks of
+        768 steps with the median fed back between blocks, which its README recommends beyond about 1&nbsp;000 steps.
+        Only the decoding changes. In one pass, Toto 2.0 2.5B covers 76&nbsp;% of a random walk over the first 768
+        steps and still 58&nbsp;% over the last 1&nbsp;024. Fed back, its band shrinks from 0.99 to 0.004 times the
+        width of the best possible one between steps 768 and 769, and its coverage falls from 73&nbsp;% to 0. Its four
+        smaller sizes do the same.
+    </p>
+    <figure class="fig">
+        <div class="fig__frame fc" data-fc='{"cells":[["E3__rw__C4096_H4096_n0","random walk"],["E3__linear_up__C4096_H4096_n0.01","line"]],
+            "choices":[["toto2-2.5b",null,"Toto 2.0 2.5B, one pass"],["toto2-2.5b/block768",null,"Toto 2.0 2.5B, median fed back"],"chronos-2"],
+            "on":["toto2-2.5b","toto2-2.5b/block768"],"rule":[768,"first fed-back block"],"blocks":true}'></div>
+        <figcaption>The same model and the same series, decoded two ways. 4&nbsp;096 steps ahead from 4&nbsp;096 of
+            history, every fourth step shown.</figcaption>
+    </figure>
+    <p>
+        Feeding back the median is not all loss. It holds the median better far out: on a sine of period 24,
+        4&nbsp;096 steps ahead, Toto's error is 1.4 times the best possible fed back, 7.0 in one pass. One decoder
+        keeps the median, the other the band.
     </p>
     <p>
         On a line, Timestral curves up after the first block, and Chronos-2 bends down within it: their medians end
@@ -188,7 +213,7 @@
     </p>
     <figure class="fig">
         <div class="fig__frame fc" data-fc='{"cells":[["E1__level_shift__C512_H96_n0.01","level shift"],["E1__trend_break__C512_H96_n0.01","trend that turns"],["E1__spike__C512_H96_n0.01","spike"],["E1__missing_block__C512_H96_n0.01","gap"],["E1__sine_p300__C512_H96_n0.01","slow cycle"],["E1__chirp__C512_H96_n0.01","chirp"]],
-            "choices":["timestral-209m","chronos-2","timesfm-2.5"],"on":["timestral-209m","chronos-2"]}'></div>
+            "choices":["timestral-209m","chronos-2","timesfm-2.5","toto2-2.5b"],"on":["timestral-209m","chronos-2"]}'></div>
     </figure>
 
     <h2 id="cov">A leading series: ignored, unless shifted</h2>
@@ -227,7 +252,7 @@
     </p>
     <figure class="fig">
         <div class="fig__frame fc" id="explorer" data-fc='{"cells":[],"picker":"gallery",
-            "choices":["timestral-209m",["timestral-209m/noclip","opt","clip off"],["timestral-209m/log","opt","on log x"],"chronos-2","timesfm-2.5","linreg"],
+            "choices":["timestral-209m",["timestral-209m/noclip","opt","clip off"],["timestral-209m/log","opt","on log x"],"chronos-2","timesfm-2.5","toto2-2.5b","linreg"],
             "on":["timestral-209m","chronos-2"]}'></div>
     </figure>
     <div class="viewer__legend cards__legend">
@@ -242,7 +267,8 @@
     <h2 id="findings">Findings</h2>
     <ul class="findings">
         <li><b>Closest to the best possible.</b> Timestral 209M's error is 1.54 times the unavoidable one on average,
-            against 1.86 for Chronos-2 and 2.02 for TimesFM 2.5. The 28M already matches Chronos-2.</li>
+            against 1.80 for Toto 2.0 2.5B, 1.86 for Chronos-2 and 2.02 for TimesFM 2.5. The 28M already matches
+            Chronos-2.</li>
         <li><b>Lines are easy.</b> 1.2 to 1.5 times the best possible at every size, with a far tighter band than
             Chronos-2 on a short history.</li>
         <li><b>Crossing zero needs <code>clip_nonnegative=False</code>.</b> The default clip holds a falling line at
@@ -251,6 +277,8 @@
             Timestral stays between 1.1 and 2.1 times the best possible.</li>
         <li><b>Trust the band within 1&nbsp;024 steps only.</b> Beyond one decoded block, the median is fed back and
             the band collapses. TimesFM 2.5, past 1&nbsp;024 steps, does the same from step 129.</li>
+        <li><b>The median fed back is the cause.</b> With fixed weights, Toto 2.0 loses its band at step 769 when
+            decoded by blocks, and keeps most of it in one pass. Fed back, its median holds better far out.</li>
         <li><b>Shift a leading series by its lead.</b> As is, it is ignored. Passed as a known covariate, it cuts the
             error to 4&nbsp;% when its lead covers the horizon.</li>
         <li><b>Level shifts and gaps are handled.</b> With less than two periods of a slow cycle, TimesFM 2.5 does
@@ -258,7 +286,7 @@
         <li><b>Keep the mirror averaging.</b> Without it, the error on sines rises by 5 to 29&nbsp;%.</li>
         <li><b>For the model,</b> both weak points sit in the decoding, not in the network: the default clip, and the
             median fed back between blocks. Rolling out from quantile paths, as Chronos-2 does, would likely keep the
-            band.</li>
+            band, though we did not try it on Timestral.</li>
     </ul>
 
     <details class="method">
@@ -285,6 +313,11 @@
                 follow-ups in a few minutes more. The shifted leader, and TimesFM 2.5 beyond 1&nbsp;024 steps with its base
                 quantile head (timesfm 3.0.2 refuses longer horizons with the continuous one), were tried after the main
                 study.</li>
+            <li>Toto 2.0 was added on 22 October, in its five sizes (4M to 2.5B), through toto-2 2.0.0 with its weights at
+                their Hugging Face revisions of that day, on every task it can take (it has no covariates), in 38 minutes
+                on the same node. Its context is cut to its last 4&nbsp;096 steps, its training length, and to a multiple
+                of its 32-step patch. It decodes in one pass by default, and by blocks of 768 steps on the long horizons
+                for the test above. Its quantiles are sorted, like Chronos-2's.</li>
         </ul>
     </details>
 

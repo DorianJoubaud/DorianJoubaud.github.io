@@ -10,18 +10,20 @@
 
     var NS = 'http://www.w3.org/2000/svg';
     var C = {
-        timestral: '#11ABB0', option: '#6250d6', chronos: '#eb6834', timesfm: '#2a78d6',
+        timestral: '#11ABB0', option: '#6250d6', chronos: '#eb6834', timesfm: '#2a78d6', toto: '#2f9e44',
         classical: '#8a8f92', ink: '#1f2222', muted: '#6a6f72', rule: '#ececea', surface: '#ffffff'
     };
     var NAMES = {
         'timestral-209m': 'Timestral 209M', 'timestral-123m': 'Timestral 123M', 'timestral-28m': 'Timestral 28M',
         'timestral-5m': 'Timestral 5M', 'chronos-2': 'Chronos-2', 'timesfm-2.5': 'TimesFM 2.5',
-        'autoarima': 'AutoARIMA', 'autoets': 'AutoETS', 'oracle': 'Best possible'
+        'toto2-2.5b': 'Toto 2.0 2.5B', 'toto2-1b': 'Toto 2.0 1B', 'toto2-313m': 'Toto 2.0 313M',
+        'toto2-22m': 'Toto 2.0 22M', 'toto2-4m': 'Toto 2.0 4M', 'autoarima': 'AutoARIMA', 'autoets': 'AutoETS', 'oracle': 'Best possible'
     };
     function colorOf(model) {
         if (model.indexOf('timestral') === 0) return C.timestral;
         if (model === 'chronos-2') return C.chronos;
         if (model === 'timesfm-2.5') return C.timesfm;
+        if (model.indexOf('toto2') === 0) return C.toto;
         return C.classical;
     }
     function fmt(v) {
@@ -175,7 +177,8 @@
             });
             bars(box, rows, { ref: 1, aria: 'Average error relative to the best possible forecast, by model.' });
             legend(box, [{ color: C.timestral, label: 'Timestral' }, { color: C.chronos, label: 'Chronos-2' },
-                         { color: C.timesfm, label: 'TimesFM 2.5' }, { color: C.classical, label: 'classical' },
+                         { color: C.timesfm, label: 'TimesFM 2.5' }, { color: C.toto, label: 'Toto 2.0' },
+                         { color: C.classical, label: 'classical' },
                          { kind: 'dash', label: 'best possible (1)' }]);
             table(box, ['model', 'error / best possible'], F.overall.map(function (r) { return [NAMES[r.model], fmt(r.value)]; }));
         }
