@@ -1,6 +1,6 @@
 /* ============================================================
    Forecast plots of the Timestral note, drawn as SVG from
-   examples.json: the end of the context, what happened, each
+   examples.json: the end of the context, the ground truth, each
    model's median and 80 % band, and the best possible 80 % band.
    A .fc element is a full plot with its controls, a .mini a
    thumbnail, #gallery the grid of every task that drives the
@@ -329,7 +329,7 @@
                 } else {
                     var j = Math.max(0, Math.min(nf - 1, Math.round(xv / step) - 1));
                     at = fx[j];
-                    rows = ['<b>' + stepLabel(at) + '</b>', 'what happened: ' + fmt(s.future[j])];
+                    rows = ['<b>' + stepLabel(at) + '</b>', 'ground truth: ' + fmt(s.future[j])];
                     shown.forEach(function (k, n) {
                         var f = s.f[k], y = sy(f.med[j]);
                         rows.push('<span class="swatch" style="background:' + colorOf(k) + '"></span> ' + nameOf(k) + ': '
@@ -550,7 +550,7 @@
                 rule: cfg.rule, every: cfg.every, height: cfg.height,
                 view: viewOf(id),
                 onZoom: function (r) { st.view = { id: id, r: r }; render(); },
-                aria: taskName(id) + ': the end of the context, what happened, and the forecasts of '
+                aria: taskName(id) + ': the end of the context, the ground truth, and the forecasts of '
                       + keys.map(nameOf).join(', ') + '.'
             });
             pager.innerHTML = '';
@@ -564,7 +564,7 @@
             legendBox.innerHTML = '';
             keys.filter(function (k) { return s.f[k]; }).forEach(function (k) { key(legendBox, 'model', colorOf(k), labelOf(k)); });
             key(legendBox, 'line', C.past, 'past');
-            key(legendBox, 'line', C.ink, 'what happened');
+            key(legendBox, 'line', C.ink, 'ground truth');
             if (s.f[cfg.oracle || 'oracle']) key(legendBox, 'dash', null, cfg.oracleLabel || 'best possible 80\u00a0% band');
             if (cfg.rule && (cfg.ruleKey || cfg.rule[1])) key(legendBox, 'vdash', null, cfg.ruleKey || cfg.rule[1]);
             if (cfg.lane && s.cov && s.cov[cfg.lane]) key(legendBox, 'line', C.ink, cfg.laneKey || 'covariate');
