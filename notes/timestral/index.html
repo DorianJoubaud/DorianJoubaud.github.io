@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Timestral with a ruler | Dorian Joubaud</title>
-    <meta name="description" content="Mistral AI's Timestral forecasting models, all four sizes, with Chronos-2, TimesFM 2.5, Toto 2.0 and Toto 1.0, tested on series a person could forecast by hand, against the best forecast possible.">
+    <meta name="description" content="Mistral AI's Timestral models in all four sizes, along with Chronos-2, TimesFM 2.5, Toto 2.0 and Toto 1.0, tested on series simple enough to forecast with a ruler and a pencil, where we know the best forecast anyone could make.">
     <meta name="author" content="Dorian Joubaud">
 
     <link rel="icon" type="image/png" sizes="32x32" href="../../favicon-32x32.png">
@@ -32,8 +32,9 @@
     <p class="note__kicker">Note · October 2026</p>
     <h1 class="note__title">Timestral with a ruler and a pencil</h1>
     <p class="note__dek">
-        Mistral AI's new forecasting models, all four sizes, on series a person could forecast by hand,
-        scored against the best forecast possible.
+        We tested Mistral AI's new Timestral models in all four sizes, along with four other families of foundation
+        models, on series simple enough to forecast with a ruler and a pencil, where we know the best forecast anyone
+        could make.
     </p>
     <p class="note__meta">Dorian Joubaud</p>
 
@@ -150,9 +151,11 @@
     <p>
         Timestral handles straight lines very well, with an error between 1.2 and 1.5 times the best possible at every
         size, against 1.7 to 1.9 for Chronos-2. This may come from the way it normalises its input, although we have
-        not tested it. Timestral standardises each patch with the mean and spread of the series up to the end of that
-        patch, and in that frame every rising line looks the same to the network whatever its slope, so extending the
-        line amounts to holding a level. With only 128 steps of history, Chronos-2's median also follows the line, but
+        not tested it. Timestral standardises each patch with the mean and spread of every value up to the end of that
+        patch. On a rising line, every patch then ends close to √3 standard deviations above this running mean,
+        whatever the slope, so the network sees an almost flat sequence. Its forecast is mapped back with running
+        statistics that keep moving with it, so keeping that flat level is enough to continue the line. With only 128
+        steps of history, Chronos-2's median also follows the line, but
         its band is twelve times wider than Timestral's and sags toward the past.
     </p>
     <figure class="fig">
@@ -283,10 +286,18 @@
             two part ways: from the second block on, the band of the first rarely contains the truth.</figcaption>
     </figure>
     <p>
-        Over 4&nbsp;096 steps, the quantile paths also improve Timestral's median on the random series. Its error falls
-        from 1.26 to 1.05 times the best possible on the random walk and from 1.22 to 1.01 on the AR(1), level with
-        Chronos-2. On a line and on sines, however, they cost 5 to 15&nbsp;%, and the band remains too narrow, since it
-        contains the truth 57&nbsp;% of the time over the last block where the best possible band reaches 76&nbsp;%.
+        On the random walk and the AR(1), the gain comes from the band alone, as the median barely moves. Over
+        4&nbsp;096 steps, Timestral's error falls from 1.26 to 1.05 times the best possible on the random walk and from
+        1.22 to 1.01 on the AR(1), level with Chronos-2, although on the random walk the band still contains the truth
+        only 57&nbsp;% of the time over the last block, where the best possible band reaches 76&nbsp;%.
+    </p>
+    <p>
+        On the line, the paths make the upward drift of the median worse, and the error rises by 14&nbsp;% at
+        4&nbsp;096 steps and by 45&nbsp;% at 2&nbsp;048. At 4&nbsp;096 steps the band contains the truth again only
+        because it grows about four times wider over the last block. On the two sines the error rises by 2 to
+        20&nbsp;%. Over the ten long tasks other than the random walk, at 2&nbsp;048 and 4&nbsp;096 steps, the error
+        still falls by 4&nbsp;% on average, because the AR(1) and an exponential gain more than the line and the sines
+        lose.
     </p>
     <p>
         The method is also slower, as every block after the first needs nine forward passes instead of one, which
@@ -370,8 +381,9 @@
             when it is fed back.</li>
         <li>Feeding back quantile paths as Chronos-2 does gives Timestral most of its band back without retraining.
             Over the last block of a random walk, its band then contains the truth 57&nbsp;% of the time instead of
-            2&nbsp;%, and its error falls from 1.26 to 1.05, for a cost of 5 to 15&nbsp;% on lines and sines and nine
-            forward passes per block.</li>
+            2&nbsp;%, and its error falls from 1.26 to 1.05. It raises the error by 2 to 45&nbsp;% on the line and the
+            sines and needs nine forward passes per block, but over the long tasks other than the random walk the error
+            still falls by 4&nbsp;% on average.</li>
         <li>Timestral, Chronos-2 and both Toto models ignore a series that runs 96 steps ahead of the target, given as a
             covariate or as a second series, although it holds the whole future.</li>
     </ul>
