@@ -239,8 +239,8 @@
     </figure>
     <p>
         Feeding back the median does have one advantage, as it keeps the median itself on track far out. On a sine of
-        period 24, 4&nbsp;096 steps ahead, the error of Toto 2.0 is 1.4 times the best possible with the median fed
-        back, against 7.0 in one pass.
+        period 24, 4&nbsp;096 steps ahead, Toto 2.0 with its median fed back makes an error 1.4 times the best possible,
+        against 7.0 in one pass.
     </p>
     <p>
         Toto 1.0, which is generative, shows that the problem does not lie in predicting quantiles. Its usual decoding
@@ -317,8 +317,8 @@
     <p>
         Toto takes no covariates, so we gave it the leading series as a second series, as Layer 6 did in
         <a href="https://github.com/layer6ai-labs/SimpleTimeBench" target="_blank" rel="noopener">SimpleTimeBench</a>,
-        their benchmark. Toto ignores it as well, since with the series 96 steps ahead the error of Toto 2.0 2.5B falls
-        by only 3&nbsp;% and that of Toto 1.0 by 8&nbsp;%, while the best possible error falls to zero.
+        their benchmark. Toto ignores it as well, since with the series 96 steps ahead the error falls by only 3&nbsp;%
+        for Toto 2.0 2.5B and by 8&nbsp;% for Toto 1.0, while the best possible error falls to zero.
     </p>
     <figure class="fig">
         <div class="fig__frame">
@@ -329,7 +329,7 @@
     </figure>
     <p>
         A covariate unrelated to the target hardly bothers Timestral or the largest Toto 2.0, whose error changes by 1
-        to 7&nbsp;%, but it raises the error of Chronos-2 by 12 to 29&nbsp;%.
+        to 7&nbsp;%, but it raises the error by 12 to 29&nbsp;% for Chronos-2.
     </p>
 
     <h2 id="all">Every task</h2>
@@ -432,8 +432,8 @@
                 on the context and divided by that of the best possible forecast. We compare settings with this ratio
                 only. The plots show the 10&nbsp;%, 50&nbsp;% and 90&nbsp;% quantiles.</li>
             <li>Everything ran on the MeluXina supercomputer, on nodes with four A100 GPUs. Timestral, Chronos-2,
-                TimesFM 2.5 and the classical methods took 25 minutes on one node, Toto 2.0 38 minutes, and Toto 1.0
-                about 6 GPU-hours for its 256 paths. Beyond 1&nbsp;024 steps, TimesFM 2.5 runs with its base quantile
+                TimesFM 2.5 and the classical methods took 25 minutes on one node, against 38 minutes for Toto 2.0 and
+                about 6 GPU-hours for Toto 1.0 and its 256 paths. Beyond 1&nbsp;024 steps, TimesFM 2.5 runs with its base quantile
                 head, because timesfm 3.0.2 refuses longer horizons with the continuous one.</li>
         </ul>
     </details>
