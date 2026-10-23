@@ -19,7 +19,7 @@
     var MODEL = { 'timestral-209m': 'Timestral 209M', 'chronos-2': 'Chronos-2', 'timesfm-2.5': 'TimesFM 2.5',
                   'toto2-2.5b': 'Toto 2.0 2.5B', 'toto1': 'Toto 1.0', 'linreg': 'Least-squares line' };
     var VARIANT = { noclip: 'clip off', log: 'on log x', basehead: 'base quantile head', block768: 'median fed back', qpaths: 'quantile paths', meanfeed: 'mean fed back' };
-    var MODE = { past_cov: 'leader as given', lead_known: 'leader shifted', known_cov: 'with c' };
+    var MODE = { past_cov: 'leader as given', lead_known: 'leader shifted', multi_lag: 'leader as a second series', known_cov: 'with c' };
     var LABELS = {
         linear_up: 'Rising line', linear_down: 'Falling line', linear_cross: 'Line falling through zero',
         linear_cross_up: 'Line rising through zero', quadratic: 'Parabola', exp_k1: 'Exponential, e¹',

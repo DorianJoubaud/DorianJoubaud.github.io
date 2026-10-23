@@ -35,7 +35,7 @@
         Mistral AI's new forecasting models, all four sizes, on series a person could forecast by hand,
         scored against the best forecast possible.
     </p>
-    <p class="note__meta">Dorian Joubaud · updated 22 October: Toto 2.0 and Toto 1.0 added, why the band collapses far out, and a fix</p>
+    <p class="note__meta">Dorian Joubaud · updated 23 October: Toto 2.0 and Toto 1.0 added, why the band collapses far out, and a fix</p>
 
     <div class="tldr">
         <p class="tldr__title">In short</p>
@@ -143,7 +143,7 @@
         Timestral 209M beats Chronos-2 on 53 of the 76 tasks and TimesFM 2.5 on 58. Timestral 28M, a quarter of
         Chronos-2's size, is on par with it. Toto 2.0 comes next at its largest size: 2.5B beats Chronos-2 on 49 tasks
         and Timestral 209M on 26, and each of its sizes does better than the one below. Toto 1.0 scores 2.23 and beats
-        Chronos-2 on 17 tasks.
+        Chronos-2 on 18 tasks.
     </p>
 
     <h2 id="lines">Lines: Timestral is sure of them</h2>
@@ -246,7 +246,7 @@
     </p>
     <p>
         Is it a weakness of models that answer quantiles? Toto 1.0 says no. It is generative, and its usual decoding
-        feeds each of its 256 paths with its own draws: its band holds, 66&nbsp;% over the last 1&nbsp;024 steps. The
+        feeds each of its 256 paths with its own draws: its band holds, 64&nbsp;% over the last 1&nbsp;024 steps. The
         same weights fed the mean of each patch instead lose it one patch later: 1&nbsp;% over steps 65 to 1&nbsp;024.
     </p>
     <figure class="fig">
@@ -301,20 +301,26 @@
     <h2 id="cov">A leading series: ignored, unless shifted</h2>
     <p>
         Here the covariate is the target itself 96 steps ahead, given over the past: its last 96 values are the whole
-        future. Neither model uses it, the blind spot Layer 6 found in Chronos-2, Moirai and Toto
+        future. Neither Timestral nor Chronos-2 uses it, the blind spot Layer 6 found in Chronos-2, Moirai and Toto
         (<a href="https://arxiv.org/abs/2610.02058" target="_blank" rel="noopener">Ghoroghchian et al., 2026</a>).
         Shifted back by its lead, it becomes a covariate known in advance, which both models use.
     </p>
     <figure class="fig">
         <div class="fig__frame fc" data-fc='{"cells":[["E4__lead_rw_L96__C512_H96_n0","leader 96 steps ahead"],["E4__lead_rw_L32__C512_H96_n0","leader 32 steps ahead"]],
             "choices":[["timestral-209m@past_cov",null,"Timestral, as given"],["timestral-209m@lead_known","v","Timestral, shifted"],
-                       ["chronos-2@past_cov",null,"Chronos-2, as given"],["chronos-2@lead_known","v","Chronos-2, shifted"]],
+                       ["chronos-2@past_cov",null,"Chronos-2, as given"],["chronos-2@lead_known","v","Chronos-2, shifted"],
+                       ["toto2-2.5b@multi_lag",null,"Toto 2.0 2.5B, as a second series"],["toto1@multi_lag",null,"Toto 1.0, as a second series"]],
             "on":["timestral-209m@past_cov","timestral-209m@lead_known"],"lane":"past_cov","laneLabel":"leading series, given over the past",
             "laneKey":"its last values, the target&#39;s next steps","oracle":"oracle@lead_known","summary":"alone"}'></div>
         <figcaption>A random walk and the same walk ahead of it. With a leader 32 steps ahead, the shifted covariate
             covers the first 32 steps of the horizon only. Timestral is exact over them, then jumps away from the truth
             and ends worse than without the covariate.</figcaption>
     </figure>
+    <p>
+        Toto takes no covariates, so we gave it the leader as a second series, the way Layer 6 did. It ignores it
+        too: with the leader 96 steps ahead, its error falls by 3&nbsp;% for Toto 2.0 2.5B and 8&nbsp;% for Toto 1.0,
+        where the best possible error falls to zero.
+    </p>
     <figure class="fig">
         <div class="fig__frame">
             <p class="fig__title">Error with the covariate, divided by the error without it</p>
@@ -323,8 +329,8 @@
         </div>
     </figure>
     <p>
-        A covariate unrelated to the target changes Timestral's error by 1 to 7&nbsp;% and raises Chronos-2's by 12 to
-        29&nbsp;%.
+        A covariate unrelated to the target changes Timestral's error by 1 to 7&nbsp;%, Toto 2.0 2.5B's by 3 to
+        4&nbsp;%, and raises Chronos-2's by 12 to 29&nbsp;%.
     </p>
 
     <h2 id="all">Every task</h2>
@@ -394,17 +400,20 @@
                 Chronos-2's quantiles can cross, so they are sorted, which never increases the loss. AutoETS and
                 AutoARIMA from statsforecast 2.1.1, non-seasonal, on the last 1&nbsp;024 steps.</li>
             <li>Toto 2.0 in its five sizes (4M to 2.5B) through toto-2 2.0.0, and Toto 1.0 (151M) through toto-ts
-                0.1.4, with their weights at their Hugging Face revisions of 22 October, on every task they can take
-                (they have no covariates). Their context is cut to its last 4&nbsp;096 steps and to a multiple of their
-                patch (32 and 64 steps). Toto 2.0 decodes in one pass by default, and by blocks
-                of 768 steps with the median fed back for the test above. Its quantiles are sorted, like Chronos-2's.</li>
-            <li>Toto 1.0 draws 256 paths, and its quantiles are read off them, so they carry sampling noise. For the
-                test above, the same weights also ran with the mean of each patch fed back, the loop of its
+                0.1.4, with their weights at their Hugging Face revisions of 22 October, on every task they can take.
+                They have no covariates: a leading series is given to them as a second series. Their context is cut
+                to its last 4&nbsp;096 steps and to a multiple of their patch (32 and 64 steps). Toto 2.0 decodes in
+                one pass by default, and by blocks of 768 steps with the median fed back for the test above. Its
+                quantiles are sorted, like Chronos-2's.</li>
+            <li>Toto 1.0 draws 256 paths, and its quantiles are read off them, so they carry sampling noise. Its draws
+                are seeded: drawn without a seed, its error moved by 0.05&nbsp;% on the median task, 2&nbsp;% at most.
+                For the test above, the same weights also ran with the mean of each patch fed back, the loop of its
                 <code>generate_mean</code>, the quantiles of each patch then read off 256 draws of the law it
                 predicts.</li>
             <li>Quantile paths: our port of <code>_autoregressive_unroll_for_long_horizon</code> from
                 chronos-forecasting 2.3.2, with the nine deciles as paths and the same pooling weights. Timestral runs
-                through it with blocks of 1&nbsp;024 steps, Toto 2.0 with blocks of 768.</li>
+                through it with blocks of 1&nbsp;024 steps, Toto 2.0 with blocks of 768. Run through it, Chronos-2
+                matches its own rollout: the same coverage per block to three decimals, errors within 1&nbsp;%.</li>
             <li>About 190&nbsp;000 target series in 330 settings, drawn once from seeds derived from the setting names, so
                 that every model sees the same series. The main grid has 512 steps of context, 96 of horizon and noise at
                 1&nbsp;% of the signal's spread. Further grids vary the context from 128 to 8&nbsp;192 steps and the
@@ -416,8 +425,8 @@
                 context, divided by that of the best possible forecast. Comparisons across settings use this ratio only.
                 The plots show the 10&nbsp;%, 50&nbsp;% and 90&nbsp;% quantiles.</li>
             <li>The main study ran in 25 minutes on one node of the MeluXina supercomputer (four A100 GPUs). Toto 2.0
-                took 38 minutes on the same node, Toto 1.0 and the quantile paths 5 hours 40, most of it for Toto 1.0's
-                256 paths. The shifted leader, TimesFM 2.5 beyond 1&nbsp;024 steps with its base quantile head
+                took 38 minutes on the same node, Toto 1.0 about 6 GPU-hours for its 256 paths. The shifted leader,
+                TimesFM 2.5 beyond 1&nbsp;024 steps with its base quantile head
                 (timesfm 3.0.2 refuses longer horizons with the continuous one), Toto and the quantile paths came after
                 the main study.</li>
         </ul>
