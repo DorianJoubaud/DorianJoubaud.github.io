@@ -174,9 +174,11 @@
 .fc .chip:disabled { opacity: 0.4; cursor: default; }
 .fc .chip:disabled:hover { background: var(--color-chip-bg); color: var(--color-muted); }
 .fc .chip--on, .fc .chip--on:hover { background: var(--color-text); color: #fff; }
-.fc__plot svg, .mini__plot svg { display: block; width: 100%; height: auto; touch-action: pan-y; }
-.fc__plot text { font-family: var(--font-sans); font-size: 12px; fill: var(--color-text); }
-.fc__plot .muted { fill: var(--color-muted); }
+.fc__plot svg, .fc__cov svg, .mini__plot svg { display: block; width: 100%; height: auto; touch-action: pan-y; }
+.fc__plot text, .fc__cov text { font-family: var(--font-sans); font-size: 12px; fill: var(--color-text); }
+.fc__plot .muted, .fc__cov .muted { fill: var(--color-muted); }
+.fc__cov { margin-top: 0.9rem; }
+.fc__cov p { margin: 0 0 0.25rem !important; font-size: 0.8rem; color: var(--color-muted); }
 .fc__sum { margin: 0.5rem 0 0; font-size: 0.82rem; line-height: 1.45; color: var(--color-muted); }
 .findings li { margin-bottom: 0.55rem; }
 .findings b { font-weight: 600; }

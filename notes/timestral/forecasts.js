@@ -13,7 +13,8 @@
 
     var NS = 'http://www.w3.org/2000/svg';
     var C = {
-        timestral: '#11ABB0', option: '#6250d6', chronos: '#eb6834', timesfm: '#2a78d6', toto: '#2f9e44', totoBlock: '#c2255c', toto1: '#9c6b30', ruler: '#6a6f72',
+        timestral: '#11ABB0', option: '#6250d6', chronos: '#eb6834', timesfm: '#2a78d6', toto: '#2f9e44', totoBlock: '#c2255c',
+        totoOption: '#e6a700', toto1: '#9c6b30', ruler: '#6a6f72',
         ink: '#1f2222', past: '#9a9fa2', muted: '#6a6f72', rule: '#ececea', zero: '#c4c8c6', surface: '#ffffff'
     };
     var MODEL = { 'timestral-209m': 'Timestral 209M', 'chronos-2': 'Chronos-2', 'timesfm-2.5': 'TimesFM 2.5',
@@ -71,8 +72,8 @@
     function colorOf(key) {
         var p = parts(key);
         if (p.model === 'timesfm-2.5') return C.timesfm;              // its base head is its own setting, not an option
-        if (p.model.indexOf('toto2') === 0 && p.variant !== 'qpaths' && p.variant !== 'log')
-            return p.variant === 'block768' ? C.totoBlock : C.toto;
+        if (p.model.indexOf('toto2') === 0)                          // an option on Toto 2.0 gets its own colour
+            return p.variant === 'block768' ? C.totoBlock : p.variant === 'default' ? C.toto : C.totoOption;
         if (p.model === 'toto1') return p.variant === 'meanfeed' ? C.totoBlock : C.toto1;
         if (p.variant !== 'default' || p.mode === 'lead_known' || p.mode === 'known_cov') return C.option;
         if (p.model.indexOf('timestral') === 0) return C.timestral;
@@ -371,6 +372,91 @@
         holder.appendChild(svg);
     }
 
+    /* Under a long-horizon plot: the share of the truth inside each 80 % band, every 64 steps, over all
+       the series of the task, on the time axis of the plot above. o: {oracle, rule, every, view, labelOf} */
+    function coverage(holder, id, keys, o) {
+        var cell = DATA[id], cv = cell.cov64, s = cell.series[0], step = cell.step || 1;
+        holder.innerHTML = '';
+        var ora = cv && cv[o.oracle || 'oracle'];
+        if (!ora) return;
+        var shown = keys.filter(function (k) { return cv[k]; });
+        var nShow = s.context.length, nf = s.future.length, bin = nf * step / ora.length;
+        var X0 = -(nShow - 1) * step, X1 = nf * step, full = [X0, X1];
+        if (o.view) { X0 = Math.max(X0, o.view[0]); X1 = Math.min(X1, o.view[1]); }
+        var zoomed = X0 > full[0] || X1 < full[1];
+        html('p', '', holder, '% of the truth inside the 80 % band, every 64 steps, over the ' + cell.n + ' series of this task');
+        var W = Math.max(150, Math.round(holder.clientWidth || 600)), H = W < 500 ? 130 : 150;
+        var P = { l: 46, r: 14, t: 8, b: 24 }, pw = W - P.l - P.r, ph = H - P.t - P.b;
+        var sx = function (x) { return P.l + pw * (x - X0) / (X1 - X0); };
+        var sy = function (v) { return P.t + ph * (1 - v); };
+        var svg = el('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'aria-label': 'Share of the truth inside the 80 % band of '
+                              + shown.map(o.labelOf).join(', ') + ', every 64 steps.' }, holder);
+        var cid = 'fc-clip-' + (++uid);
+        el('rect', { x: P.l, y: P.t, width: pw, height: ph }, el('clipPath', { id: cid }, el('defs', {}, svg)));
+        [0, 0.2, 0.4, 0.6, 0.8, 1].forEach(function (v) {
+            var y = Math.round(sy(v)) + 0.5;
+            el('line', { x1: P.l, x2: W - P.r, y1: y, y2: y, stroke: C.rule }, svg);
+            txt(svg, P.l - 6, y + 4, String(Math.round(100 * v)), { 'text-anchor': 'end', 'class': 'muted' });
+        });
+        var xt = zoomed ? ticks(X0, X1, W < 500 ? 3 : 5).vals : [];
+        if (!zoomed) for (var b = o.every || 1024; b < X1; b += o.every || 1024) xt.push(b);
+        xt.forEach(function (v) {
+            var tx = Math.round(sx(v)) + 0.5;
+            if (v === 0) return;
+            el('line', { x1: tx, x2: tx, y1: P.t, y2: H - P.b, stroke: C.rule }, svg);
+            if (zoomed || (pw * (o.every || 1024) / (X1 - X0) > 70 && W - P.r - tx > 50))
+                txt(svg, tx, H - 7, (v > 0 ? '+' : '−') + thousands(Math.abs(v)), { 'text-anchor': 'middle', 'class': 'muted' });
+        });
+        if (!zoomed) txt(svg, W - P.r, H - 7, '+' + thousands(X1), { 'text-anchor': 'end', 'class': 'muted' });
+        var nowX = Math.round(sx(step / 2)) + 0.5;
+        el('line', { x1: nowX, x2: nowX, y1: P.t, y2: H - P.b, stroke: C.past, 'stroke-dasharray': '2 3' }, svg);
+        if (nowX > P.l && nowX < W - P.r) txt(svg, nowX, H - 7, 'now', { 'text-anchor': 'middle', 'class': 'muted' });
+        if (o.rule) {
+            var at = [o.rule[0]];
+            if (o.every) for (var rv = o.rule[0] + o.every; rv < X1; rv += o.every) at.push(rv);
+            at.forEach(function (v) {
+                if (v >= X1 || v <= X0) return;
+                var rx = Math.round(sx(v)) + 0.5;
+                el('line', { x1: rx, x2: rx, y1: P.t, y2: H - P.b, stroke: C.muted, 'stroke-dasharray': '4 3' }, svg);
+            });
+        }
+        var steps = function (c) {                  // one flat segment per stretch of 64 steps
+            var d = '';
+            for (var i = 0; i < c.length; i++) {
+                if (c[i] === null || !isFinite(c[i])) continue;
+                d += (d ? 'L' : 'M') + sx(i * bin).toFixed(1) + ',' + sy(c[i]).toFixed(1)
+                     + 'L' + sx((i + 1) * bin).toFixed(1) + ',' + sy(c[i]).toFixed(1);
+            }
+            return d;
+        };
+        var g = el('g', { 'clip-path': 'url(#' + cid + ')' }, svg);
+        el('path', { d: steps(ora), fill: 'none', stroke: C.ink, 'stroke-opacity': 0.6, 'stroke-width': 1, 'stroke-dasharray': '4 3' }, g);
+        shown.slice().reverse().forEach(function (k) {
+            el('path', { d: steps(cv[k]), fill: 'none', stroke: colorOf(k), 'stroke-width': 2, 'stroke-linejoin': 'round' }, g);
+        });
+
+        var cross = el('line', { y1: P.t, y2: H - P.b, stroke: C.muted, visibility: 'hidden' }, svg);
+        var hit = el('rect', { x: P.l, y: 0, width: pw, height: H, fill: 'transparent' }, svg);
+        var hide = function () { cross.setAttribute('visibility', 'hidden'); hideTip(); };
+        var move = function (ev) {
+            var r = svg.getBoundingClientRect(), x = (ev.clientX - r.left) * W / r.width;
+            var i = Math.floor((X0 + (x - P.l) / pw * (X1 - X0)) / bin);
+            if (i < 0 || i >= ora.length) { hide(); return; }
+            var rows = ['<b>steps ' + thousands(i * bin + 1) + ' to ' + thousands((i + 1) * bin) + '</b>'];
+            shown.forEach(function (k) {
+                rows.push('<span class="swatch" style="background:' + colorOf(k) + '"></span> ' + o.labelOf(k) + ': '
+                          + Math.round(100 * cv[k][i]) + '&nbsp;%');
+            });
+            rows.push('best possible: ' + Math.round(100 * ora[i]) + '&nbsp;%');
+            var px = sx((i + 0.5) * bin);
+            cross.setAttribute('x1', px); cross.setAttribute('x2', px); cross.setAttribute('visibility', 'visible');
+            showTip(ev, rows.join('<br>'));
+        };
+        hit.addEventListener('pointermove', move);
+        hit.addEventListener('pointerdown', move);
+        hit.addEventListener('pointerleave', hide);
+    }
+
     function key(parent, kind, color, label) {
         var s = html('span', '', parent), k = html('span', '', s);
         if (kind === 'model') {
@@ -405,7 +491,8 @@
         function labelOf(k) { return LABEL[k] || nameOf(k); }
         var bar = html('div', 'fc__bar', box), plotBox = html('div', 'fc__plot', box);
         var foot = html('div', 'fc__foot', box), legendBox = html('div', 'viewer__legend', foot);
-        var pager = html('div', 'fc__group fc__group--series', foot), sum = html('div', 'fc__sum', box);
+        var pager = html('div', 'fc__group fc__group--series', foot), covBox = cfg.cover ? html('div', 'fc__cov', box) : null;
+        var sum = html('div', 'fc__sum', box);
         var fig = { box: box, w: 0 };
 
         function current() { return cells[st.cell][0]; }
@@ -462,6 +549,8 @@
             key(legendBox, 'line', C.ink, 'what happened');
             if (s.f[cfg.oracle || 'oracle']) key(legendBox, 'dash', null, cfg.oracleLabel || 'best possible 80 % band');
             if (cfg.lane && s.cov && s.cov[cfg.lane]) key(legendBox, 'line', C.option, cfg.laneKey || 'covariate');
+            if (covBox) coverage(covBox, id, keys, { oracle: cfg.oracle, rule: cfg.rule, every: cfg.every, labelOf: labelOf,
+                                                     view: st.view && st.view.id === id ? st.view.r : null });
             summary(id, keys);
             fig.w = plotBox.clientWidth;
         }
