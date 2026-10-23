@@ -1,9 +1,8 @@
 /* ============================================================
    Score figures of the Timestral note, drawn as SVG from
-   figures.json (scripts/site_figures.py of
-   github.com/DorianJoubaud/timestral-probes). Horizontal bars
-   carry their value at the end, every figure has a legend when it
-   has two series or more, a hover tooltip and a table view.
+   figures.json. Horizontal bars carry their value at the end,
+   every figure has a legend when it has two series or more, a
+   hover tooltip and a table view.
    ============================================================ */
 (function () {
     'use strict';
@@ -17,7 +16,7 @@
         'timestral-209m': 'Timestral 209M', 'timestral-123m': 'Timestral 123M', 'timestral-28m': 'Timestral 28M',
         'timestral-5m': 'Timestral 5M', 'chronos-2': 'Chronos-2', 'timesfm-2.5': 'TimesFM 2.5',
         'toto2-2.5b': 'Toto 2.0 2.5B', 'toto2-1b': 'Toto 2.0 1B', 'toto2-313m': 'Toto 2.0 313M',
-        'toto2-22m': 'Toto 2.0 22M', 'toto2-4m': 'Toto 2.0 4M', 'toto1': 'Toto 1.0 (generative)', 'autoarima': 'AutoARIMA', 'autoets': 'AutoETS', 'oracle': 'Best possible'
+        'toto2-22m': 'Toto 2.0 22M', 'toto2-4m': 'Toto 2.0 4M', 'toto1': 'Toto 1.0, generative', 'autoarima': 'AutoARIMA', 'autoets': 'AutoETS', 'oracle': 'Best possible'
     };
     function colorOf(model) {
         if (model.indexOf('timestral') === 0) return C.timestral;
@@ -173,13 +172,12 @@
     function draw(F) {
         var box;
         if ((box = document.getElementById('fig-overall'))) {
-            var rows = F.overall.map(function (r) {
+            var rows = F.overall.filter(function (r) { return colorOf(r.model) !== C.classical; }).map(function (r) {
                 return { label: NAMES[r.model], value: r.value, color: colorOf(r.model) };
             });
             bars(box, rows, { ref: 1, aria: 'Average error relative to the best possible forecast, by model.' });
             legend(box, [{ color: C.timestral, label: 'Timestral' }, { color: C.chronos, label: 'Chronos-2' },
                          { color: C.timesfm, label: 'TimesFM 2.5' }, { color: C.toto, label: 'Toto 2.0' }, { color: C.toto1, label: 'Toto 1.0, generative' },
-                         { color: C.classical, label: 'classical' },
                          { kind: 'dash', label: 'best possible (1)' }]);
             table(box, ['model', 'error / best possible'], F.overall.map(function (r) { return [NAMES[r.model], fmt(r.value)]; }));
         }
@@ -197,11 +195,12 @@
                                        color: C.option, tick: r.oracle });
                 rows5.push({ label: lead ? 'Chronos-2, as given' : 'Chronos-2', value: r['chronos-2'],
                              color: C.chronos, tick: r.oracle });
+                if (lead) rows5.push({ label: 'Chronos-2, shifted', value: r['chronos-2_shifted'],
+                                       color: C.option, tick: r.oracle });
             });
             bars(box, rows5, { max: 1.3, ref: 1, aria: 'Error with the covariate divided by the error without it.' });
-            legend(box, [{ color: C.timestral, label: 'Timestral 209M' },
-                         { color: C.option, label: 'Timestral 209M, leader shifted into a known covariate' },
-                         { color: C.chronos, label: 'Chronos-2' }, { kind: 'tick', label: 'best possible' },
+            legend(box, [{ color: C.timestral, label: 'Timestral 209M' }, { color: C.chronos, label: 'Chronos-2' },
+                         { color: C.option, label: 'leader shifted into a known covariate' }, { kind: 'tick', label: 'best possible' },
                          { kind: 'dash', label: 'no gain (1)' }]);
             table(box, ['task', 'Timestral 209M', 'shifted', 'Chronos-2', 'shifted', 'best possible'], F.cov.map(function (r) {
                 return [LBL[r.task], fmt(r['timestral-209m']), r['timestral-209m_shifted'] === undefined ? '' : fmt(r['timestral-209m_shifted']),

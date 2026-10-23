@@ -1,9 +1,7 @@
 /* ============================================================
    Forecast plots of the Timestral note, drawn as SVG from
-   examples.json (scripts/export_site.py of
-   github.com/DorianJoubaud/timestral-probes): the end of the
-   context, what happened, each model's median and 80 % band,
-   and the best possible 80 % band.
+   examples.json: the end of the context, what happened, each
+   model's median and 80 % band, and the best possible 80 % band.
    A .fc element is a full plot with its controls, a .mini a
    thumbnail, #gallery the grid of every task that drives the
    #explorer plot. Settings are read from data-fc (JSON).
@@ -45,8 +43,8 @@
     ];
     var EXTRA = {
         'E2__linear_up__C128_H96_n0.01': 'Rising line, 128 steps of history',
-        'E3__linear_up__C4096_H4096_n0.01': 'Rising line, 4 096 steps ahead',
-        'E3__rw__C4096_H4096_n0': 'Random walk, 4 096 steps ahead'
+        'E3__linear_up__C4096_H4096_n0.01': 'Rising line, 4\u00a0096 steps ahead',
+        'E3__rw__C4096_H4096_n0': 'Random walk, 4\u00a0096 steps ahead'
     };
     var CTX = { level_shift: 192, missing_block: 512, spike: 192, trend_break: 192 };   // history shown in the cards
     var DATA = null, FIGS = [], uid = 0;
@@ -120,16 +118,30 @@
     var tip = html('div', 'viewer__tip', document.body);
     tip.style.position = 'fixed';
     tip.hidden = true;
-    function showTip(ev, content) {
+    var clearMarks = null;                          // hides the crosshair of the plot that showed the tooltip
+    function showTip(ev, content, clear) {
+        if (clearMarks && clearMarks !== clear) clearMarks();
+        clearMarks = clear || null;
         tip.innerHTML = content;
         tip.hidden = false;
-        var x = ev.clientX + 14;
+        var x = ev.clientX + 14, y;
         if (x + tip.offsetWidth > window.innerWidth - 8) x = Math.max(8, ev.clientX - 14 - tip.offsetWidth);
-        var y = Math.min(ev.clientY + 14, window.innerHeight - tip.offsetHeight - 8);
+        if (ev.pointerType === 'touch') {           // above the finger, which would hide it
+            y = ev.clientY - 28 - tip.offsetHeight;
+            if (y < 8) y = Math.min(ev.clientY + 28, window.innerHeight - tip.offsetHeight - 8);
+        } else y = Math.min(ev.clientY + 14, window.innerHeight - tip.offsetHeight - 8);
         tip.style.left = x + 'px';
         tip.style.top = y + 'px';
     }
-    function hideTip() { tip.hidden = true; }
+    function hideTip() {
+        tip.hidden = true;
+        if (clearMarks) { var c = clearMarks; clearMarks = null; c(); }
+    }
+    // a touch tooltip stays after the finger lifts, until the page scrolls or another tap lands elsewhere
+    window.addEventListener('scroll', function () { if (!tip.hidden) hideTip(); }, { passive: true });
+    document.addEventListener('pointerdown', function (ev) {
+        if (!tip.hidden && !(ev.target.closest && ev.target.closest('.fc__plot svg, .fc__cov svg'))) hideTip();
+    });
 
     function extent(arrs, withZero) {
         var lo = Infinity, hi = -Infinity;
@@ -229,7 +241,7 @@
                 for (var b = blk; b < X1; b += blk) {
                     var bx = Math.round(sx(b)) + 0.5;
                     el('line', { x1: bx, x2: bx, y1: P.t, y2: H - P.b, stroke: C.rule }, svg);
-                    if (pw * blk / (X1 - X0) > 70 && W - P.r - bx > 50) {
+                    if (pw * blk / (X1 - X0) > 46 && W - P.r - bx > 70) {
                         txt(svg, bx, H - 7, '+' + thousands(b), { 'text-anchor': 'middle', 'class': 'muted' });
                     }
                 }
@@ -248,7 +260,7 @@
                 if (v >= X1 || v <= X0) return;
                 var rx = Math.round(sx(v)) + 0.5;
                 el('line', { x1: rx, x2: rx, y1: P.t, y2: H - P.b, stroke: C.muted, 'stroke-dasharray': o.mini ? '2 2' : '4 3' }, svg);
-                if (!o.mini && !named && o.rule[1]) {
+                if (!o.mini && !named && o.rule[1] && (!o.every || pw * o.every / (X1 - X0) > 120)) {
                     txt(svg, rx + 5, P.t + 13, o.rule[1], { 'class': 'muted', 'paint-order': 'stroke', stroke: C.surface, 'stroke-width': 3 });
                     named = true;
                 }
@@ -264,7 +276,7 @@
             var tail = laneVals.map(function (v, i) { return i >= from ? v : null; });
             el('line', { x1: P.l, x2: W - P.r, y1: LT + LH + LG / 2, y2: LT + LH + LG / 2, stroke: C.rule }, svg);
             el('path', { d: linePath(lxs, head, sx, ly), fill: 'none', stroke: C.past, 'stroke-width': 1.5 }, svg);
-            el('path', { d: linePath(lxs, tail, sx, ly), fill: 'none', stroke: C.option, 'stroke-width': 2 }, svg);
+            el('path', { d: linePath(lxs, tail, sx, ly), fill: 'none', stroke: C.ink, 'stroke-width': 2 }, svg);
             if (!o.mini && o.laneLabel) txt(svg, P.l, 12, o.laneLabel, { 'class': 'muted' });
         }
 
@@ -272,10 +284,11 @@
         var fx = xs(nf, step, false), cx = xs(nShow, step, true), below = shown.slice().reverse();
         var many = shown.length > 1;                // several bands: lighter fills, each outlined in its colour
         below.forEach(function (k) {
-            el('path', { d: bandPath(fx, s.f[k].lo, s.f[k].hi, sx, sy), fill: colorOf(k), 'fill-opacity': many ? 0.07 : 0.17 }, g);
-            if (many && !o.mini) ['lo', 'hi'].forEach(function (q) {
-                el('path', { d: linePath(fx, s.f[k][q], sx, sy), fill: 'none', stroke: colorOf(k), 'stroke-width': 1,
-                             'stroke-opacity': 0.6, 'stroke-linejoin': 'round' }, g);
+            el('path', { d: bandPath(fx, s.f[k].lo, s.f[k].hi, sx, sy), fill: colorOf(k),
+                         'fill-opacity': many ? (o.mini ? 0.12 : 0.07) : 0.17 }, g);
+            if (many) ['lo', 'hi'].forEach(function (q) {
+                el('path', { d: linePath(fx, s.f[k][q], sx, sy), fill: 'none', stroke: colorOf(k), 'stroke-width': o.mini ? 0.8 : 1,
+                             'stroke-opacity': o.mini ? 0.45 : 0.6, 'stroke-linejoin': 'round' }, g);
             });
         });
         if (oracle) {
@@ -301,6 +314,10 @@
                 return el('circle', { r: 3.5, fill: colorOf(k), stroke: C.surface, 'stroke-width': 1.5, visibility: 'hidden' }, svg);
             });
             var hit = el('rect', { x: P.l, y: 0, width: pw, height: H, fill: 'transparent' }, svg);
+            var clear = function () {
+                cross.setAttribute('visibility', 'hidden');
+                dots.forEach(function (d) { d.setAttribute('visibility', 'hidden'); });
+            };
             var move = function (ev) {
                 var r = svg.getBoundingClientRect(), x = (ev.clientX - r.left) * W / r.width;
                 var xv = X0 + (x - P.l) / pw * (X1 - X0), at, rows;
@@ -326,7 +343,7 @@
                 }
                 var px = sx(at);
                 cross.setAttribute('x1', px); cross.setAttribute('x2', px); cross.setAttribute('visibility', 'visible');
-                showTip(ev, rows.join('<br>'));
+                showTip(ev, rows.join('<br>'), clear);
             };
             // drag with a mouse to zoom on a stretch of time, double-click to go back
             var brush = el('rect', { y: P.t, height: ph, fill: C.ink, 'fill-opacity': 0.06, stroke: C.muted,
@@ -362,11 +379,7 @@
             });
             if (o.onZoom) hit.addEventListener('dblclick', function () { o.onZoom(null); });
             if (o.onZoom) hit.style.cursor = 'crosshair';
-            hit.addEventListener('pointerleave', function () {
-                cross.setAttribute('visibility', 'hidden');
-                dots.forEach(function (d) { d.setAttribute('visibility', 'hidden'); });
-                hideTip();
-            });
+            hit.addEventListener('pointerleave', function (ev) { if (ev.pointerType !== 'touch') hideTip(); });
         }
         holder.innerHTML = '';
         holder.appendChild(svg);
@@ -404,7 +417,7 @@
             var tx = Math.round(sx(v)) + 0.5;
             if (v === 0) return;
             el('line', { x1: tx, x2: tx, y1: P.t, y2: H - P.b, stroke: C.rule }, svg);
-            if (zoomed || (pw * (o.every || 1024) / (X1 - X0) > 70 && W - P.r - tx > 50))
+            if (zoomed || (pw * (o.every || 1024) / (X1 - X0) > 46 && W - P.r - tx > 70))
                 txt(svg, tx, H - 7, (v > 0 ? '+' : '−') + thousands(Math.abs(v)), { 'text-anchor': 'middle', 'class': 'muted' });
         });
         if (!zoomed) txt(svg, W - P.r, H - 7, '+' + thousands(X1), { 'text-anchor': 'end', 'class': 'muted' });
@@ -437,11 +450,11 @@
 
         var cross = el('line', { y1: P.t, y2: H - P.b, stroke: C.muted, visibility: 'hidden' }, svg);
         var hit = el('rect', { x: P.l, y: 0, width: pw, height: H, fill: 'transparent' }, svg);
-        var hide = function () { cross.setAttribute('visibility', 'hidden'); hideTip(); };
+        var clear = function () { cross.setAttribute('visibility', 'hidden'); };
         var move = function (ev) {
             var r = svg.getBoundingClientRect(), x = (ev.clientX - r.left) * W / r.width;
             var i = Math.floor((X0 + (x - P.l) / pw * (X1 - X0)) / bin);
-            if (i < 0 || i >= ora.length) { hide(); return; }
+            if (i < 0 || i >= ora.length) { hideTip(); clear(); return; }
             var rows = ['<b>steps ' + thousands(i * bin + 1) + ' to ' + thousands((i + 1) * bin) + '</b>'];
             shown.forEach(function (k) {
                 rows.push('<span class="swatch" style="background:' + colorOf(k) + '"></span> ' + o.labelOf(k) + ': '
@@ -450,11 +463,11 @@
             rows.push('best possible: ' + Math.round(100 * ora[i]) + '&nbsp;%');
             var px = sx((i + 0.5) * bin);
             cross.setAttribute('x1', px); cross.setAttribute('x2', px); cross.setAttribute('visibility', 'visible');
-            showTip(ev, rows.join('<br>'));
+            showTip(ev, rows.join('<br>'), clear);
         };
         hit.addEventListener('pointermove', move);
         hit.addEventListener('pointerdown', move);
-        hit.addEventListener('pointerleave', hide);
+        hit.addEventListener('pointerleave', function (ev) { if (ev.pointerType !== 'touch') hideTip(); });
     }
 
     function key(parent, kind, color, label) {
@@ -463,6 +476,7 @@
             k.className = 'key-model';
             k.style.setProperty('--c', color);
         } else if (kind === 'dash') k.className = 'key-dash';
+        else if (kind === 'vdash') k.className = 'key-vdash';
         else { k.className = 'key-line'; k.style.borderColor = color; }
         s.appendChild(document.createTextNode(label));
     }
@@ -496,6 +510,10 @@
         var fig = { box: box, w: 0 };
 
         function current() { return cells[st.cell][0]; }
+        function viewOf(id) {                       // the reader's zoom, else the view the tab starts with
+            if (st.view && st.view.id === id) return st.view.r;
+            return cells[st.cell][2] || null;
+        }
         function render() {
             var id = current(), cell = DATA[id], s = cell.series[st.series] || cell.series[0];
             if (!cell.series[st.series]) st.series = 0;
@@ -530,8 +548,8 @@
             plot(plotBox, id, st.series, keys, {
                 oracle: cfg.oracle, fit: cfg.fit, zero: cfg.zero, lane: cfg.lane, laneLabel: cfg.laneLabel,
                 rule: cfg.rule, every: cfg.every, height: cfg.height,
-                view: st.view && st.view.id === id ? st.view.r : null,
-                onZoom: function (r) { st.view = r ? { id: id, r: r } : null; render(); },
+                view: viewOf(id),
+                onZoom: function (r) { st.view = { id: id, r: r }; render(); },
                 aria: taskName(id) + ': the end of the context, what happened, and the forecasts of '
                       + keys.map(nameOf).join(', ') + '.'
             });
@@ -542,15 +560,16 @@
                     chip(pager, String(i + 1), i === st.series, false, null, function () { st.series = i; render(); });
                 });
             }
-            if (st.view && st.view.id === id) chip(pager, 'reset zoom', false, false, null, function () { st.view = null; render(); });
+            if (viewOf(id)) chip(pager, 'reset zoom', false, false, null, function () { st.view = { id: id, r: null }; render(); });
             legendBox.innerHTML = '';
             keys.filter(function (k) { return s.f[k]; }).forEach(function (k) { key(legendBox, 'model', colorOf(k), labelOf(k)); });
             key(legendBox, 'line', C.past, 'past');
             key(legendBox, 'line', C.ink, 'what happened');
-            if (s.f[cfg.oracle || 'oracle']) key(legendBox, 'dash', null, cfg.oracleLabel || 'best possible 80 % band');
-            if (cfg.lane && s.cov && s.cov[cfg.lane]) key(legendBox, 'line', C.option, cfg.laneKey || 'covariate');
+            if (s.f[cfg.oracle || 'oracle']) key(legendBox, 'dash', null, cfg.oracleLabel || 'best possible 80\u00a0% band');
+            if (cfg.rule && (cfg.ruleKey || cfg.rule[1])) key(legendBox, 'vdash', null, cfg.ruleKey || cfg.rule[1]);
+            if (cfg.lane && s.cov && s.cov[cfg.lane]) key(legendBox, 'line', C.ink, cfg.laneKey || 'covariate');
             if (covBox) coverage(covBox, id, keys, { oracle: cfg.oracle, rule: cfg.rule, every: cfg.every, labelOf: labelOf,
-                                                     view: st.view && st.view.id === id ? st.view.r : null });
+                                                     view: viewOf(id) });
             summary(id, keys);
             fig.w = plotBox.clientWidth;
         }
