@@ -394,47 +394,30 @@
     <details class="method">
         <summary>Method details</summary>
         <ul>
+            <li>About 190&nbsp;000 target series in 330 settings, the same for every model. The main grid has 512 steps of
+                context, 96 of horizon and noise at 1&nbsp;% of the spread of the signal. Further grids vary the context
+                from 128 to 8&nbsp;192 steps and the horizon up to 4&nbsp;096, and add covariates.</li>
             <li>We ran Timestral as shipped, then with each of its two test-time options turned off
                 (<code>symmetric_averaging</code> and <code>clip_nonnegative</code>), on the logarithm of positive
                 series, and through quantile paths. Chronos-2 and TimesFM 2.5 ran with their recommended settings and
-                Toto 2.0 and Toto 1.0 with their defaults, next to a least-squares line (our ruler), AutoETS and
-                AutoARIMA.</li>
-            <li>Timestral 1.0.0 (inference code at <code>a534bdb</code>), with its weights at their Hugging Face
-                revisions of 15 October 2026. Chronos-2 through chronos-forecasting 2.3.2 and TimesFM 2.5 through timesfm
-                3.0.2. Chronos-2's quantiles can cross, so we sort them, which never increases the loss. AutoETS and
-                AutoARIMA come from statsforecast 2.1.1, non-seasonal, on the last 1&nbsp;024 steps.</li>
-            <li>Toto 2.0 in its five sizes (4M to 2.5B) through toto-2 2.0.0, and Toto 1.0 (151M) through toto-ts
-                0.1.4, with their weights at their Hugging Face revisions of 22 October, on every task they can take.
-                They take no covariates, so a leading series is given to them as a second series. Their context is cut
-                to its last 4&nbsp;096 steps and to a multiple of their patch (32 and 64 steps). Toto 2.0 decodes in one
-                pass by default, and by blocks of 768 steps with the median fed back for the comparison above. Its
-                quantiles are sorted, like those of Chronos-2.</li>
-            <li>Toto 1.0 draws 256 paths and its quantiles are read off them, so they carry sampling noise. Its draws
-                are seeded, and without a seed its error moved by 0.05&nbsp;% on the median task and by 2&nbsp;% at
-                most. For the comparison above, the same weights also ran with the mean of each patch fed back, the loop
-                of its <code>generate_mean</code>, the quantiles of each patch then being read off 256 draws of the
+                the Toto models with their defaults, next to a least-squares line (our ruler) and to AutoETS and
+                AutoARIMA, non-seasonal, on the last 1&nbsp;024 steps.</li>
+            <li>Toto 2.0 comes in five sizes, from 4M to 2.5B parameters, and Toto 1.0 has 151M. Both read at most the
+                last 4&nbsp;096 steps of context. The draws of Toto 1.0 are seeded, and without a seed its error moves
+                by 2&nbsp;% at most. With its mean fed back, the quantiles of each patch are read off 256 draws of the
                 distribution it predicts.</li>
-            <li>The quantile paths are our port of <code>_autoregressive_unroll_for_long_horizon</code> from
-                chronos-forecasting 2.3.2, with the nine deciles as paths and the same pooling weights. Timestral runs
-                through it with blocks of 1&nbsp;024 steps and Toto 2.0 with blocks of 768. Run through our port,
-                Chronos-2 matches its own rollout, with the same coverage per block to three decimals and errors within
-                1&nbsp;%.</li>
-            <li>About 190&nbsp;000 target series in 330 settings, drawn once from seeds derived from the setting names
-                so that every model sees the same series. The main grid has 512 steps of context, 96 of horizon and noise
-                at 1&nbsp;% of the spread of the signal. Further grids vary the context from 128 to 8&nbsp;192 steps and
-                the horizon up to 4&nbsp;096, and add covariates.</li>
-            <li>We also regenerated <a href="https://github.com/layer6ai-labs/SimpleTimeBench" target="_blank"
-                rel="noopener">SimpleTimeBench</a>, the benchmark of Layer 6, with its own code at <code>a7d6c6e</code>.
-                Our Chronos-2 lands where Layer 6 reported it, which checks our pipeline. On its lines, Timestral's
-                forecast leans toward the mean of the context on 44&nbsp;% of the steps, against 99&nbsp;% for
-                Chronos-2.</li>
-            <li>The score is the quantile loss over the nine deciles, scaled by the error of the one-step naive forecast
-                on the context and divided by that of the best possible forecast. We compare settings with this ratio
-                only. The plots show the 10&nbsp;%, 50&nbsp;% and 90&nbsp;% quantiles.</li>
-            <li>Everything ran on the MeluXina supercomputer, on nodes with four A100 GPUs. Timestral, Chronos-2,
-                TimesFM 2.5 and the classical methods took 25 minutes on one node, against 38 minutes for Toto 2.0 and
-                about 6 GPU-hours for Toto 1.0 and its 256 paths. Beyond 1&nbsp;024 steps, TimesFM 2.5 runs with its base quantile
-                head, because timesfm 3.0.2 refuses longer horizons with the continuous one.</li>
+            <li>The score is the quantile loss over the nine deciles, scaled per series by the error of the one-step
+                naive forecast and divided by that of the best possible forecast. The quantiles of Chronos-2 and Toto 2.0
+                can cross, so we sort them, which never increases the loss. The plots show the 10&nbsp;%, 50&nbsp;% and
+                90&nbsp;% quantiles.</li>
+            <li>On <a href="https://github.com/layer6ai-labs/SimpleTimeBench" target="_blank"
+                rel="noopener">SimpleTimeBench</a>, which we regenerated, our Chronos-2 lands where Layer 6 reported it,
+                which checks our pipeline. On its lines, Timestral's forecast leans toward the mean of the context on
+                44&nbsp;% of the steps, against 99&nbsp;% for Chronos-2.</li>
+            <li>Through our port of the quantile paths, Chronos-2 matches its own rollout, with the same coverage per
+                block to three decimals and errors within 1&nbsp;%.</li>
+            <li>We used Timestral 1.0.0, chronos-forecasting 2.3.2, timesfm 3.0.2, toto-2 2.0.0, toto-ts 0.1.4 and
+                statsforecast 2.1.1.</li>
         </ul>
     </details>
 
