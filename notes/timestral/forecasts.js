@@ -11,12 +11,12 @@
 
     var NS = 'http://www.w3.org/2000/svg';
     var C = {
-        timestral: '#11ABB0', option: '#6250d6', chronos: '#eb6834', timesfm: '#2a78d6', toto: '#2f9e44', totoBlock: '#c2255c',
-        totoOption: '#e6a700', toto1: '#9c6b30', ruler: '#6a6f72',
+        timestral: '#11ABB0', option: '#6250d6', chronos: '#eb6834', timesfm: '#2a78d6', timesfm3: '#173f8a', toto: '#2f9e44',
+        totoBlock: '#c2255c', totoOption: '#e6a700', toto1: '#9c6b30', ruler: '#6a6f72',
         ink: '#1f2222', past: '#9a9fa2', muted: '#6a6f72', rule: '#ececea', zero: '#c4c8c6', surface: '#ffffff'
     };
     var MODEL = { 'timestral-209m': 'Timestral 209M', 'chronos-2': 'Chronos-2', 'timesfm-2.5': 'TimesFM 2.5',
-                  'toto2-2.5b': 'Toto 2.0 2.5B', 'toto1': 'Toto 1.0', 'linreg': 'Least-squares line' };
+                  'timesfm-3': 'TimesFM 3.0', 'toto2-2.5b': 'Toto 2.0 2.5B', 'toto1': 'Toto 1.0', 'linreg': 'Least-squares line' };
     var VARIANT = { noclip: 'clip off', log: 'on log x', basehead: 'base quantile head', block768: 'median fed back', qpaths: 'quantile paths', meanfeed: 'mean fed back' };
     var MODE = { past_cov: 'leader as given', lead_known: 'leader shifted', multi_lag: 'leader as a second series', known_cov: 'with c' };
     var LABELS = {
@@ -77,6 +77,7 @@
         if (p.model.indexOf('timestral') === 0) return C.timestral;
         if (p.model === 'chronos-2') return C.chronos;
         if (p.model === 'timesfm-2.5') return C.timesfm;
+        if (p.model === 'timesfm-3') return C.timesfm3;
         return C.ruler;
     }
     function fmt(v) {

@@ -9,12 +9,12 @@
 
     var NS = 'http://www.w3.org/2000/svg';
     var C = {
-        timestral: '#11ABB0', option: '#6250d6', chronos: '#eb6834', timesfm: '#2a78d6', toto: '#2f9e44', toto1: '#9c6b30',
-        classical: '#8a8f92', ink: '#1f2222', muted: '#6a6f72', rule: '#ececea', surface: '#ffffff'
+        timestral: '#11ABB0', option: '#6250d6', chronos: '#eb6834', timesfm: '#2a78d6', timesfm3: '#173f8a', toto: '#2f9e44',
+        toto1: '#9c6b30', classical: '#8a8f92', ink: '#1f2222', muted: '#6a6f72', rule: '#ececea', surface: '#ffffff'
     };
     var NAMES = {
         'timestral-209m': 'Timestral 209M', 'timestral-123m': 'Timestral 123M', 'timestral-28m': 'Timestral 28M',
-        'timestral-5m': 'Timestral 5M', 'chronos-2': 'Chronos-2', 'timesfm-2.5': 'TimesFM 2.5',
+        'timestral-5m': 'Timestral 5M', 'chronos-2': 'Chronos-2', 'timesfm-2.5': 'TimesFM 2.5', 'timesfm-3': 'TimesFM 3.0',
         'toto2-2.5b': 'Toto 2.0 2.5B', 'toto2-1b': 'Toto 2.0 1B', 'toto2-313m': 'Toto 2.0 313M',
         'toto2-22m': 'Toto 2.0 22M', 'toto2-4m': 'Toto 2.0 4M', 'toto1': 'Toto 1.0, generative', 'autoarima': 'AutoARIMA', 'autoets': 'AutoETS', 'oracle': 'Best possible'
     };
@@ -22,6 +22,7 @@
         if (model.indexOf('timestral') === 0) return C.timestral;
         if (model === 'chronos-2') return C.chronos;
         if (model === 'timesfm-2.5') return C.timesfm;
+        if (model === 'timesfm-3') return C.timesfm3;
         if (model.indexOf('toto2') === 0) return C.toto;
         if (model === 'toto1') return C.toto1;
         return C.classical;
@@ -177,8 +178,8 @@
             });
             bars(box, rows, { ref: 1, aria: 'Average error relative to the best possible forecast, by model.' });
             legend(box, [{ color: C.timestral, label: 'Timestral' }, { color: C.chronos, label: 'Chronos-2' },
-                         { color: C.timesfm, label: 'TimesFM 2.5' }, { color: C.toto, label: 'Toto 2.0' }, { color: C.toto1, label: 'Toto 1.0, generative' },
-                         { kind: 'dash', label: 'best possible (1)' }]);
+                         { color: C.timesfm, label: 'TimesFM 2.5' }, { color: C.timesfm3, label: 'TimesFM 3.0' }, { color: C.toto, label: 'Toto 2.0' },
+                         { color: C.toto1, label: 'Toto 1.0, generative' }, { kind: 'dash', label: 'best possible (1)' }]);
             table(box, ['model', 'error / best possible'], F.overall.map(function (r) { return [NAMES[r.model], fmt(r.value)]; }));
         }
         if ((box = document.getElementById('fig-cov'))) {
@@ -197,14 +198,19 @@
                              color: C.chronos, tick: r.oracle });
                 if (lead) rows5.push({ label: 'Chronos-2, shifted', value: r['chronos-2_shifted'],
                                        color: C.option, tick: r.oracle });
+                rows5.push({ label: lead ? 'TimesFM 3.0, as given' : 'TimesFM 3.0', value: r['timesfm-3'],
+                             color: C.timesfm3, tick: r.oracle });
+                if (lead) rows5.push({ label: 'TimesFM 3.0, shifted', value: r['timesfm-3_shifted'],
+                                       color: C.option, tick: r.oracle });
             });
             bars(box, rows5, { max: 1.3, ref: 1, aria: 'Error with the covariate divided by the error without it.' });
             legend(box, [{ color: C.timestral, label: 'Timestral 209M' }, { color: C.chronos, label: 'Chronos-2' },
-                         { color: C.option, label: 'leader shifted into a known covariate' }, { kind: 'tick', label: 'best possible' },
-                         { kind: 'dash', label: 'no gain (1)' }]);
-            table(box, ['task', 'Timestral 209M', 'shifted', 'Chronos-2', 'shifted', 'best possible'], F.cov.map(function (r) {
+                         { color: C.timesfm3, label: 'TimesFM 3.0' }, { color: C.option, label: 'leader shifted into a known covariate' },
+                         { kind: 'tick', label: 'best possible' }, { kind: 'dash', label: 'no gain (1)' }]);
+            table(box, ['task', 'Timestral 209M', 'shifted', 'Chronos-2', 'shifted', 'TimesFM 3.0', 'shifted', 'best possible'], F.cov.map(function (r) {
                 return [LBL[r.task], fmt(r['timestral-209m']), r['timestral-209m_shifted'] === undefined ? '' : fmt(r['timestral-209m_shifted']),
                         fmt(r['chronos-2']), r['chronos-2_shifted'] === undefined ? '' : fmt(r['chronos-2_shifted']),
+                        fmt(r['timesfm-3']), r['timesfm-3_shifted'] === undefined ? '' : fmt(r['timesfm-3_shifted']),
                         r.oracle === null ? 'n/a' : fmt(r.oracle)];
             }));
         }

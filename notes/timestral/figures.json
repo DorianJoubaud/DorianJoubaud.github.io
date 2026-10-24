@@ -9,6 +9,10 @@
    "value": 1.5764
   },
   {
+   "model": "timesfm-3",
+   "value": 1.7212
+  },
+  {
    "model": "timestral-28m",
    "value": 1.7883
   },
@@ -64,14 +68,16 @@
    "mode": "known_cov",
    "oracle": null,
    "timestral-209m": 0.0806,
-   "chronos-2": 0.11
+   "chronos-2": 0.11,
+   "timesfm-3": 0.0663
   },
   {
    "task": "known_link_ar1",
    "mode": "known_cov",
    "oracle": null,
    "timestral-209m": 0.0572,
-   "chronos-2": 0.0782
+   "chronos-2": 0.0782,
+   "timesfm-3": 0.0488
   },
   {
    "task": "lead_rw_L96",
@@ -79,8 +85,10 @@
    "oracle": 0.0,
    "timestral-209m": 0.9923,
    "chronos-2": 0.9692,
+   "timesfm-3": 0.5377,
    "timestral-209m_shifted": 0.0376,
-   "chronos-2_shifted": 0.1342
+   "chronos-2_shifted": 0.1342,
+   "timesfm-3_shifted": 0.0361
   },
   {
    "task": "lead_ar1_095_L96",
@@ -88,8 +96,10 @@
    "oracle": 0.0,
    "timestral-209m": 1.0165,
    "chronos-2": 0.8618,
+   "timesfm-3": 0.6408,
    "timestral-209m_shifted": 0.0309,
-   "chronos-2_shifted": 0.0809
+   "chronos-2_shifted": 0.0809,
+   "timesfm-3_shifted": 0.0203
   },
   {
    "task": "lead_rw_L32",
@@ -97,8 +107,10 @@
    "oracle": 0.5368,
    "timestral-209m": 0.8833,
    "chronos-2": 0.9549,
+   "timesfm-3": 0.5887,
    "timestral-209m_shifted": 1.2076,
-   "chronos-2_shifted": 0.8509
+   "chronos-2_shifted": 0.8509,
+   "timesfm-3_shifted": 0.5852
   }
  ]
 }

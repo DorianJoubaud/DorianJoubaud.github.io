@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Timestral with a ruler and a pencil | Dorian Joubaud</title>
-    <meta name="description" content="Mistral AI's Timestral models in all four sizes, along with Chronos-2, TimesFM 2.5, Toto 2.0 and Toto 1.0, tested on series simple enough to forecast with a ruler and a pencil, where we know the best forecast anyone could make.">
+    <meta name="description" content="Mistral AI's Timestral models in all four sizes, along with Chronos-2, TimesFM 2.5 and 3.0, Toto 2.0 and Toto 1.0, tested on series simple enough to forecast with a ruler and a pencil, where we know the best forecast anyone could make.">
     <meta name="author" content="Dorian Joubaud">
     <link rel="canonical" href="https://dorianjoubaud.com/notes/timestral/">
     <meta property="og:type" content="article">
     <meta property="og:title" content="Timestral with a ruler and a pencil">
-    <meta property="og:description" content="Mistral AI's Timestral models in all four sizes, along with Chronos-2, TimesFM 2.5, Toto 2.0 and Toto 1.0, tested on series simple enough to forecast with a ruler and a pencil, where we know the best forecast anyone could make.">
+    <meta property="og:description" content="Mistral AI's Timestral models in all four sizes, along with Chronos-2, TimesFM 2.5 and 3.0, Toto 2.0 and Toto 1.0, tested on series simple enough to forecast with a ruler and a pencil, where we know the best forecast anyone could make.">
     <meta property="og:url" content="https://dorianjoubaud.com/notes/timestral/">
     <meta property="og:image" content="https://dorianjoubaud.com/notes/timestral/og.png">
     <meta property="og:image:width" content="1200">
@@ -41,7 +41,7 @@
     <p class="note__kicker">Note · October 2026</p>
     <h1 class="note__title">Timestral with a ruler and a pencil</h1>
     <p class="note__dek">
-        We tested Mistral AI's new Timestral models in all four sizes, along with four other families of foundation
+        We tested Mistral AI's new Timestral models in all four sizes, along with five other families of foundation
         models, on series simple enough to forecast with a ruler and a pencil, where we know the best forecast anyone
         could make.
     </p>
@@ -50,18 +50,20 @@
     <div class="tldr">
         <p class="tldr__title">In short</p>
         <ul>
-            <li>Of the five families of foundation models we tested, Timestral gets closest to the best possible
+            <li>Of the six families of foundation models we tested, Timestral gets closest to the best possible
                 forecast. On our 76 main tasks, the error of Timestral 209M is on average 1.54 times the best possible,
-                against 1.80 for the largest Toto 2.0 and 1.86 for Chronos-2. The gap to Chronos-2 comes from the series
+                against 1.72 for TimesFM 3.0, with the largest Toto 2.0 at 1.80 and Chronos-2 at 1.86. The gap to Chronos-2 comes from the series
                 with 1&nbsp;% noise, as with 10&nbsp;% noise the two are level.</li>
             <li>Its 80&nbsp;% band collapses beyond 1&nbsp;024 steps, because the package feeds the median of each block
                 back into the context as if it had been observed. Toto 2.0 and Toto 1.0 show that this feedback is the
                 cause, since the same weights keep most of their band over these horizons and lose it as soon as a
-                single value is fed back. Feeding back nine quantiles instead of the median, as Chronos-2 does, gives
-                Timestral much of its band back without any retraining.</li>
+                single value is fed back. TimesFM 3.0 forecasts the whole horizon in one pass, and on a random walk its
+                band still contains the truth 77&nbsp;% of the time over the last block, as often as the best possible
+                band. Feeding back nine quantiles instead of the median, as Chronos-2 does, gives Timestral much of its
+                band back without any retraining.</li>
             <li>Timestral makes almost full use of a series that runs 8 steps ahead of a random walk, but like Chronos-2
                 and both Toto models, it all but ignores one that runs 96 steps ahead, although that series holds the
-                whole future. Shifted by its lead and passed as a covariate known in advance, the same series cuts the
+                whole future. Only TimesFM 3.0 uses part of it, cutting its error by 36 to 46&nbsp;%. Shifted by its lead and passed as a covariate known in advance, the same series cuts the
                 error of Timestral by 76 to 97&nbsp;%.</li>
             <li>Forecasting the logarithm helps a lot on fast growth, and the clip at zero that Timestral applies by
                 default is best turned off for series that can go negative.</li>
@@ -140,8 +142,9 @@
 
     <h2 id="scores">How close each model gets</h2>
     <p>
-        Besides Timestral in its four sizes, we ran four other families of foundation models. Chronos-2 from Amazon,
-        TimesFM 2.5 from Google and Toto 2.0 from Datadog in its five sizes output quantiles directly, like Timestral.
+        Besides Timestral in its four sizes, we ran five other families of foundation models. Chronos-2 from Amazon,
+        TimesFM 2.5 and TimesFM 3.0 from Google and Toto 2.0 from Datadog in its five sizes output quantiles directly,
+        like Timestral.
         Toto 1.0, the previous Toto, is generative instead. For each patch of 64 steps it predicts a distribution and draws from it before
         moving on, so we draw 256 paths and read its quantiles off them, which is also why its median is dashed on
         the plots.
@@ -154,10 +157,11 @@
         </div>
     </figure>
     <p>
-        Timestral 209M does better than Chronos-2 on 53 of the 76 tasks and better than TimesFM 2.5 on 58, and its
-        28M version is already on par with Chronos-2, a model about four times its size. Among the other models, the
-        largest Toto 2.0, with 2.5 billion parameters, comes closest, beating Chronos-2 on 49 tasks but Timestral 209M
-        on only 26, and each Toto 2.0 size does better than the one below it. Toto 1.0 is further behind, at 2.23,
+        Timestral 209M does better than Chronos-2 on 53 of the 76 tasks, than TimesFM 2.5 on 58 and than TimesFM 3.0
+        on 43, and its 28M version is already on par with Chronos-2, a model about four times its size. Among the
+        other models, TimesFM 3.0 comes closest, at 1.72, and beats Chronos-2 on 40 tasks. The largest Toto 2.0, with
+        2.5 billion parameters, follows at 1.80, beating Chronos-2 on 49 tasks but Timestral 209M on only 26, and each
+        Toto 2.0 size does better than the one below it. Toto 1.0 is further behind, at 2.23,
         although it still beats Chronos-2 on 18 tasks. AutoETS and AutoARIMA, which we ran without seasonality, end
         far behind every foundation model, at 8.7 and 6.7 times the best possible.
     </p>
@@ -178,16 +182,19 @@
         spread of every value up to the end of that patch. On a rising line, every patch then ends close to √3
         standard deviations above this running mean, whatever the slope, so all rising lines look alike to the
         network. This may help, although we have not tested it. Toto 1.0, Toto 2.0 and TimesFM 2.5 standardise their
-        input the same way, and only the two Toto models match Timestral on rising lines.
+        input the same way, and only the two Toto models match Timestral on rising lines. TimesFM 3.0 does better than
+        all of them, at 1.01 times the best possible on every line except the one falling through zero, where its own
+        clamp at zero costs it as much as Timestral's. Before forecasting, it removes a straight line fitted on the
+        history whenever that line explains most of it, and extends the line over the horizon.
     </p>
     <p>
         With only 128 steps of history, Chronos-2's median also follows the line, but its band is twelve times wider
         than Timestral's and sags far below the line, and its error is 9.7 times the best possible against 2.2 for
-        Timestral.
+        Timestral and 1.04 for TimesFM 3.0.
     </p>
     <figure class="fig">
         <div class="fig__frame fc" data-fc='{"cells":[["E2__linear_up__C128_H96_n0.01","128 steps of history"],["E1__linear_up__C512_H96_n0.01","512 steps"]],
-            "choices":["timestral-209m","chronos-2","timesfm-2.5","toto2-2.5b","toto1","linreg"],"on":["timestral-209m","chronos-2"]}'></div>
+            "choices":["timestral-209m","chronos-2","timesfm-2.5","timesfm-3","toto2-2.5b","toto1","linreg"],"on":["timestral-209m","chronos-2"]}'></div>
         <figcaption>The plots show the first series of each task, without picking them, and only the end of the
             history that the models read. Click a model to add or remove it, and hover over or touch the plot to read
             the values. With a mouse, you can also drag across the plot to zoom on a stretch of time, and double-click
@@ -197,8 +204,8 @@
     <h2 id="exp">Exponential growth</h2>
     <p>
         On exponentials, the error of every model grows with the growth rate. With growth of e³ over the context, the
-        median of Chronos-2 and TimesFM 2.5 ends below the truth on every series, and Timestral's on only 9&nbsp;% of
-        them, as it ends above the truth instead. On faster growth its error, 5.3 and 15 times the best possible at e⁵
+        median of Chronos-2 and TimesFM 2.5 ends below the truth on every series, that of TimesFM 3.0 on 99&nbsp;% of
+        them, and Timestral's on only 9&nbsp;%, as it ends above the truth instead. On faster growth its error, 5.3 and 15 times the best possible at e⁵
         and e¹⁰, is above that of Chronos-2 and about twice that of the largest Toto 2.0. Forecasting the logarithm
         and then exponentiating the quantiles turns the curve into a line, and Timestral's error then stays between
         1.1 and 2.1 times the best possible. The largest Toto 2.0 also gains from it when the growth is fast, going
@@ -208,7 +215,7 @@
     <figure class="fig">
         <div class="fig__frame fc" data-fc='{"cells":[["E1__exp_k1__C512_H96_n0.01","e¹"],["E1__exp_k3__C512_H96_n0.01","e³"],["E1__exp_k5__C512_H96_n0.01","e⁵"],["E1__exp_k10__C512_H96_n0.01","e¹⁰"]],
             "start":3,
-            "choices":["timestral-209m",["timestral-209m/log",null,"on log x"],"chronos-2","timesfm-2.5","toto2-2.5b",["toto2-2.5b/log",null,"Toto 2.0 2.5B, on log x"],"toto1"],"on":["timestral-209m","timestral-209m/log"]}'></div>
+            "choices":["timestral-209m",["timestral-209m/log",null,"on log x"],"chronos-2","timesfm-2.5","timesfm-3","toto2-2.5b",["toto2-2.5b/log",null,"Toto 2.0 2.5B, on log x"],"toto1"],"on":["timestral-209m","timestral-209m/log"]}'></div>
         <figcaption>The growth is counted over the 512 steps of context, with 1&nbsp;% multiplicative noise.</figcaption>
     </figure>
 
@@ -217,11 +224,13 @@
         Timestral follows a recent level shift and crosses a gap in its history at little cost, whereas after a shift
         Chronos-2's band still reaches back to the old level. TimesFM 2.5 does better than Timestral on a slow cycle
         of period 300, at 2.1 times the best possible against 3.8 with 512 steps of history, and Timestral only
-        catches up with 4&nbsp;096 steps. No model copes with a chirp, whose period keeps shrinking.
+        catches up with 4&nbsp;096 steps. TimesFM 3.0 sits in between on that cycle, at 2.7, but follows a level shift
+        far less well than Timestral, at 9.2 times the best possible against 1.6. No model copes with a chirp, whose
+        period keeps shrinking.
     </p>
     <figure class="fig">
         <div class="fig__frame fc" data-fc='{"cells":[["E1__level_shift__C512_H96_n0.01","level shift"],["E1__trend_break__C512_H96_n0.01","trend that turns"],["E1__spike__C512_H96_n0.01","spike"],["E1__missing_block__C512_H96_n0.01","gap"],["E1__sine_p300__C512_H96_n0.01","slow cycle"],["E1__chirp__C512_H96_n0.01","chirp"]],
-            "choices":["timestral-209m","chronos-2","timesfm-2.5","toto2-2.5b","toto1"],"on":["timestral-209m","chronos-2"]}'></div>
+            "choices":["timestral-209m","chronos-2","timesfm-2.5","timesfm-3","toto2-2.5b","toto1"],"on":["timestral-209m","chronos-2"]}'></div>
     </figure>
 
     <h2 id="horizon">Long horizons</h2>
@@ -235,16 +244,18 @@
         same way, would still reach 50, 40 and 35&nbsp;% over those blocks. Chronos-2 also decodes by blocks of
         1&nbsp;024 steps but feeds back nine quantiles rather than the median, and its band still contains the truth
         67&nbsp;% of the time over the last block. The two Toto models, which decode in one pass or with sampled
-        paths, stay close to 60&nbsp;%.
+        paths, stay close to 60&nbsp;%. TimesFM 3.0 forecasts the whole horizon in one pass and feeds nothing back,
+        and its band contains the truth 77&nbsp;% of the time over the last block, as often as the best possible band
+        on these 64 walks.
     </p>
     <figure class="fig">
         <div class="fig__frame fc" data-fc='{"cells":[["E3__rw__C4096_H4096_n0","random walk"],["E3__linear_up__C4096_H4096_n0.01","line"]],
-            "choices":["timestral-209m","chronos-2",["timesfm-2.5/basehead",null,"TimesFM 2.5"],"toto2-2.5b","toto1","linreg"],
-            "on":["timestral-209m","chronos-2"],"rule":[1024,"new block"],"ruleKey":"new block, where Timestral feeds back its median","every":1024,"blocks":true,"cover":true}'></div>
+            "choices":["timestral-209m","chronos-2",["timesfm-2.5/basehead",null,"TimesFM 2.5"],"timesfm-3","toto2-2.5b","toto1","linreg"],
+            "on":["timestral-209m","chronos-2","timesfm-3"],"rule":[1024,"new block"],"ruleKey":"new block, where Timestral feeds back its median","every":1024,"blocks":true,"cover":true}'></div>
         <figcaption>The models forecast 4&nbsp;096 steps ahead from 4&nbsp;096 steps of history, and the plot shows
             the last 1&nbsp;024 steps of history and every fourth step. At each dashed line, Timestral appends the median
             of the previous block to its context. TimesFM 2.5 runs with its base quantile head, the only one that goes
-            beyond 1&nbsp;024 steps. The lower panel counts how often the truth falls inside each band, every 64 steps
+            beyond 1&nbsp;024 steps, and TimesFM 3.0 forecasts the 4&nbsp;096 steps in one pass. The lower panel counts how often the truth falls inside each band, every 64 steps
             and over all the series of the task.</figcaption>
     </figure>
     <p>
@@ -256,6 +267,14 @@
         block and almost never after. On a line, the medians go wrong in opposite directions, as Timestral curves up
         after the first block while Chronos-2 bends down within it, so that Timestral ends above the truth and
         Chronos-2 below it on every series.
+    </p>
+    <p>
+        TimesFM 3.0 stays on the line, at the best possible error 4&nbsp;096 steps ahead, because it removes the
+        straight line fitted on the history and extends it. On random walks the same step misleads it. It removes a
+        line on 12 of the 64 walks, where its error is 2.4 times the best possible against 1.06 on the others, so that
+        over all the walks its median ends further from the truth than that of Chronos-2, at 1.32 against 1.05,
+        although its band holds better far out. Its band does not hold everywhere either, as on a sine of period 300
+        it falls after step 3&nbsp;072.
     </p>
 
     <h3 id="toto">Why the band collapses</h3>
@@ -321,7 +340,7 @@
     <figure class="fig">
         <div class="fig__frame fc" data-fc='{"cells":[["E3__rw__C4096_H4096_n0","random walk"],["E3__ar1_09__C4096_H4096_n0","AR(1)"],["E3__linear_up__C4096_H4096_n0.01","line"],["E3__sine_p24__C4096_H4096_n0.01","sine",[3584,4096]]],
             "choices":[["timestral-209m",null,"Timestral 209M, as shipped"],["timestral-209m/qpaths",null,"Timestral 209M, quantile paths"],"chronos-2",
-                       ["toto2-2.5b/qpaths",null,"Toto 2.0 2.5B, quantile paths"]],
+                       "timesfm-3",["toto2-2.5b/qpaths",null,"Toto 2.0 2.5B, quantile paths"]],
             "on":["timestral-209m","timestral-209m/qpaths"],"rule":[1024,"new block"],"ruleKey":"new block, where the median or the nine deciles are fed back","every":1024,"blocks":true,"cover":true}'></div>
         <figcaption>The same weights, decoded as shipped and through quantile paths. At each dashed line, the first
             feeds back the median of the previous block and the second its nine deciles. On the random walk and the
@@ -358,7 +377,9 @@
         et al., 2026</a>). We gave our models the same kind of series, the target itself 96 steps ahead, observed over
         the past only, so that its last 96 values are exactly the future to forecast. Neither Timestral nor Chronos-2
         makes much use of it, but once shifted back by its lead, the same series becomes a covariate known in advance
-        and both models use it well on the random walk and the AR(1). The lead is what matters, since with a series 8
+        and both models use it well on the random walk and the AR(1). TimesFM 3.0 is the only model that makes real
+        use of it as given, with an error 46&nbsp;% lower on the random walk and 36&nbsp;% lower on the AR(1), where
+        the best possible forecast makes no error at all. The lead is what matters, since with a series 8
         steps ahead Timestral takes 90&nbsp;% of the gain the best possible forecast gets on the random walk and
         96&nbsp;% on the AR(1), about a quarter with 32 steps, and none with 96.
     </p>
@@ -366,6 +387,7 @@
         <div class="fig__frame fc" data-fc='{"cells":[["E4__lead_rw_L96__C512_H96_n0","leader 96 steps ahead"],["E4__lead_rw_L32__C512_H96_n0","leader 32 steps ahead"]],
             "choices":[["timestral-209m@past_cov",null,"Timestral 209M, as given"],["timestral-209m@lead_known","v","Timestral 209M, shifted"],
                        ["chronos-2@past_cov",null,"Chronos-2, as given"],["chronos-2@lead_known","v","Chronos-2, shifted"],
+                       ["timesfm-3@past_cov",null,"TimesFM 3.0, as given"],["timesfm-3@lead_known","v","TimesFM 3.0, shifted"],
                        ["toto2-2.5b@multi_lag",null,"Toto 2.0 2.5B, as a second series"],["toto1@multi_lag",null,"Toto 1.0, as a second series"]],
             "on":["timestral-209m@past_cov","timestral-209m@lead_known"],"lane":"past_cov","laneLabel":"leading series, given over the past",
             "laneKey":"its last values, the target&#39;s next steps","oracle":"oracle@lead_known","summary":"alone"}'></div>
@@ -390,7 +412,7 @@
     </p>
     <p>
         When the target is simply 2c&nbsp;+&nbsp;1 for a covariate c known in advance, the first two tasks of the
-        figure above, Timestral and Chronos-2 both use c, with errors 6 to 11&nbsp;% of those without it. A covariate
+        figure above, Timestral, Chronos-2 and TimesFM 3.0 all use c, with errors 5 to 11&nbsp;% of those without it. A covariate
         unrelated to the target hardly bothers Timestral or the largest Toto 2.0, whose error changes by at most
         7&nbsp;%, but it raises the error by 12 to 29&nbsp;% for Chronos-2.
     </p>
@@ -403,7 +425,7 @@
     </p>
     <figure class="fig">
         <div class="fig__frame fc" id="explorer" data-fc='{"cells":[],"picker":"gallery",
-            "choices":["timestral-209m",["timestral-209m/noclip","opt","clip off"],["timestral-209m/log","opt","on log x"],"chronos-2","timesfm-2.5","toto2-2.5b","toto1","linreg"],
+            "choices":["timestral-209m",["timestral-209m/noclip","opt","clip off"],["timestral-209m/log","opt","on log x"],"chronos-2","timesfm-2.5","timesfm-3","toto2-2.5b","toto1","linreg"],
             "on":["timestral-209m","chronos-2"]}'></div>
     </figure>
     <div class="viewer__legend cards__legend">
@@ -420,11 +442,12 @@
     <h3>About the models</h3>
     <ul class="findings">
         <li>Timestral 209M comes closest to the best possible forecast, with an error 1.54 times as large on average,
-            against 1.80 for the largest Toto 2.0 and 1.86 for Chronos-2. Its 28M version already matches Chronos-2,
+            against 1.72 for TimesFM 3.0, with the largest Toto 2.0 at 1.80 and Chronos-2 at 1.86. Its 28M version already matches Chronos-2,
             and the gap to Chronos-2 comes from the series with 1&nbsp;% noise.</li>
         <li>With 1&nbsp;% noise, it handles straight lines very well, at 1.2 to 1.5 times the best possible at every
             size unless a line falls through zero with the clip on, close to Toto 1.0 and ahead of Chronos-2 and
-            TimesFM 2.5. Its band also stays much tighter than that of Chronos-2 when the history is short.</li>
+            TimesFM 2.5. Only TimesFM 3.0 does better, at 1.01, as it removes a fitted line before forecasting. Its
+            band also stays much tighter than that of Chronos-2 when the history is short.</li>
         <li>As shipped, it does worse than Chronos-2 on fast exponential growth, with about twice the error of the
             largest Toto 2.0, until the logarithm is forecast instead.</li>
         <li>It follows level shifts and crosses gaps well, while TimesFM 2.5 does better on a slow cycle of period 300
@@ -436,6 +459,10 @@
             fed back, and Toto 1.0 keeps it with sampled paths but loses it when fed its mean. TimesFM 2.5 also feeds
             its median back, but its recommended head takes the width of its band from the real history and keeps it.
             Fed back, the median of Toto 2.0 does stay closer to the truth far out than in one pass.</li>
+        <li>TimesFM 3.0 forecasts the whole horizon in one pass and feeds nothing back, and over the last block of a
+            random walk its band still contains the truth 77&nbsp;% of the time, as often as the best possible band.
+            Its median drifts on some of the walks, because it extends a straight line fitted on the history whenever
+            that line explains most of it.</li>
         <li>Feeding back quantile paths as Chronos-2 does gives Timestral much of its band back without retraining.
             Over the last block of a random walk, its band then contains the truth 57&nbsp;% of the time instead of
             2&nbsp;%, and its error falls from 1.26 to 1.05. The paths lower the error by 10 to 17&nbsp;% on the random
@@ -443,7 +470,8 @@
             passes for each block after the first.</li>
         <li>Timestral uses a series 8 steps ahead of a random walk almost fully, but Timestral, Chronos-2 and both Toto
             models all but ignore one that runs 96 steps ahead, given as a covariate or as a second series, although
-            it holds the whole future.</li>
+            it holds the whole future. TimesFM 3.0, the only model that uses part of it, cuts its error by 36 to
+            46&nbsp;%.</li>
     </ul>
     <h3>If you use Timestral</h3>
     <ul class="findings">
@@ -474,9 +502,13 @@
                 context from 128 to 8&nbsp;192 steps and the horizon up to 4&nbsp;096, and add covariates.</li>
             <li>We ran Timestral as shipped, then with each of its two test-time options turned off
                 (<code>symmetric_averaging</code> and <code>clip_nonnegative</code>), on the logarithm of positive
-                series, and through quantile paths. Chronos-2 and TimesFM 2.5 ran with their recommended settings and
+                series, and through quantile paths. Chronos-2 and TimesFM 2.5 ran with their recommended settings,
+                TimesFM 3.0 with the defaults of the class its benchmarks use (<code>TimesFM3Evaluator</code>) and
                 the Toto models with their defaults, next to a least-squares line (our ruler) and to AutoETS and
                 AutoARIMA, non-seasonal, on the last 1&nbsp;024 steps.</li>
+            <li>Those defaults of TimesFM 3.0 are the same two options as Timestral's: each forecast is averaged with
+                that of the negated series, and a series whose past is non-negative is clamped at zero. With the clamp
+                off, its error on the main grid falls from 1.72 to 1.65 times the best possible.</li>
             <li>Toto 2.0 comes in five sizes, from 4M to 2.5B parameters, and Toto 1.0 has 151M. Both read at most the
                 last 4&nbsp;096 steps of context. The draws of Toto 1.0 are seeded, and without a seed its error moves
                 by about 2&nbsp;% at most. With its mean fed back, the quantiles of each patch are read off 256 draws of the
@@ -492,8 +524,8 @@
                 an unbiased forecast would on half of them.</li>
             <li>Through our port of the quantile paths, Chronos-2 matches its own rollout, with the same coverage per
                 block to three decimals and errors within 1&nbsp;%.</li>
-            <li>We used timestral 1.0.0, chronos-forecasting 2.3.2, timesfm 3.0.2, toto-2 2.0.0, toto-ts 0.1.4 and
-                statsforecast 2.1.1.</li>
+            <li>We used timestral 1.0.0, chronos-forecasting 2.3.2, timesfm 3.0.2 (for TimesFM 2.5 and 3.0), toto-2
+                2.0.0, toto-ts 0.1.4 and statsforecast 2.1.1.</li>
         </ul>
     </details>
 
