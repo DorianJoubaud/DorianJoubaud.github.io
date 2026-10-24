@@ -200,17 +200,18 @@
                                        color: C.option, tick: r.oracle });
                 rows5.push({ label: lead ? 'TimesFM 3.0, as given' : 'TimesFM 3.0', value: r['timesfm-3'],
                              color: C.timesfm3, tick: r.oracle });
-                if (lead) rows5.push({ label: 'TimesFM 3.0, shifted', value: r['timesfm-3_shifted'],
-                                       color: C.option, tick: r.oracle });
+                // shifted TimesFM 3.0 only where the lead covers the horizon (best possible 0), see the method details
+                if (lead && r.oracle === 0) rows5.push({ label: 'TimesFM 3.0, shifted', value: r['timesfm-3_shifted'],
+                                                         color: C.option, tick: r.oracle });
             });
             bars(box, rows5, { max: 1.3, ref: 1, aria: 'Error with the covariate divided by the error without it.' });
             legend(box, [{ color: C.timestral, label: 'Timestral 209M' }, { color: C.chronos, label: 'Chronos-2' },
                          { color: C.timesfm3, label: 'TimesFM 3.0' }, { color: C.option, label: 'leader shifted into a known covariate' },
                          { kind: 'tick', label: 'best possible' }, { kind: 'dash', label: 'no gain (1)' }]);
-            table(box, ['task', 'Timestral 209M', 'shifted', 'Chronos-2', 'shifted', 'TimesFM 3.0', 'shifted', 'best possible'], F.cov.map(function (r) {
+            table(box, ['task', 'Timestral 209M', 'shifted', 'Chronos‑2', 'shifted', 'TimesFM 3.0', 'shifted', 'best possible'], F.cov.map(function (r) {
                 return [LBL[r.task], fmt(r['timestral-209m']), r['timestral-209m_shifted'] === undefined ? '' : fmt(r['timestral-209m_shifted']),
                         fmt(r['chronos-2']), r['chronos-2_shifted'] === undefined ? '' : fmt(r['chronos-2_shifted']),
-                        fmt(r['timesfm-3']), r['timesfm-3_shifted'] === undefined ? '' : fmt(r['timesfm-3_shifted']),
+                        fmt(r['timesfm-3']), r['timesfm-3_shifted'] === undefined || r.oracle !== 0 ? '' : fmt(r['timesfm-3_shifted']),
                         r.oracle === null ? 'n/a' : fmt(r.oracle)];
             }));
         }
