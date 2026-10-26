@@ -52,7 +52,7 @@
         <ul>
             <li>On our 76 main tasks, Timestral 209M comes closest to the best possible forecast. Its error is on
                 average 1.54 times the best possible, against 1.72 for TimesFM 3.0 and 1.86 for Chronos-2.</li>
-            <li>On a random walk or an AR(1), its 80&nbsp;% band collapses beyond 1&nbsp;024 steps, because by default the median of each block is
+            <li>On a random walk or an AR(1) (autoregressive of order 1), its 80&nbsp;% band collapses beyond 1&nbsp;024 steps, because by default the median of each block is
                 fed back as if it had been observed. Much of the band comes back without retraining when quantile paths
                 are fed back instead, as Chronos-2 does.</li>
             <li>Like Chronos-2 and Toto, it makes little use of a series that runs 96 steps ahead of a random walk,
