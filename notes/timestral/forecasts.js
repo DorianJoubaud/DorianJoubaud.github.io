@@ -11,8 +11,8 @@
 
     var NS = 'http://www.w3.org/2000/svg';
     var C = {
-        timestral: '#11ABB0', option: '#6250d6', chronos: '#eb6834', timesfm: '#2a78d6', timesfm3: '#173f8a', toto: '#2f9e44',
-        totoBlock: '#c2255c', totoOption: '#e6a700', toto1: '#9c6b30', ruler: '#6a6f72',
+        timestral: '#e8590c', option: '#c2255c', chronos: '#862e9c', timesfm: '#6aa5ec', timesfm3: '#2a78d6', toto: '#1baf7a',
+        totoBlock: '#e6a700', totoOption: '#7c4a03', toto1: '#0b7f4a', ruler: '#6a6f72',
         ink: '#1f2222', past: '#9a9fa2', muted: '#6a6f72', rule: '#ececea', zero: '#c4c8c6', surface: '#ffffff'
     };
     var MODEL = { 'timestral-209m': 'Timestral 209M', 'chronos-2': 'Chronos-2', 'timesfm-2.5': 'TimesFM 2.5',

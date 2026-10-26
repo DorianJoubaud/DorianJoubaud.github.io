@@ -9,8 +9,8 @@
 
     var NS = 'http://www.w3.org/2000/svg';
     var C = {
-        timestral: '#11ABB0', option: '#6250d6', chronos: '#eb6834', timesfm: '#2a78d6', timesfm3: '#173f8a', toto: '#2f9e44',
-        toto1: '#9c6b30', classical: '#8a8f92', ink: '#1f2222', muted: '#6a6f72', rule: '#ececea', surface: '#ffffff'
+        timestral: '#e8590c', option: '#c2255c', chronos: '#862e9c', timesfm: '#6aa5ec', timesfm3: '#2a78d6', toto: '#1baf7a',
+        toto1: '#0b7f4a', classical: '#8a8f92', ink: '#1f2222', muted: '#6a6f72', rule: '#ececea', surface: '#ffffff'
     };
     var NAMES = {
         'timestral-209m': 'Timestral 209M', 'timestral-123m': 'Timestral 123M', 'timestral-28m': 'Timestral 28M',
